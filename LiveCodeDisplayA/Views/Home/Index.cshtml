@@ -2,23 +2,21 @@
     ViewBag.Title = "Home Page";
     Layout = null;
 }
-@*@model LiveCodeDisplayA.Models.AbpResult<LiveCodeDisplayA.Models.ScanQrCodeResult>*@
-@ViewBag.s
-@*<!DOCTYPE html>
+@model LiveCodeDisplayA.Models.AbpResult<LiveCodeDisplayA.Models.ScanQrCodeResult>
+<!DOCTYPE html>
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    @if (Model != null && Model.result.IsSucess && Model.result.InnerCode != null)
+    @*@if (Model != null && Model.result.IsSucess && Model.result.InnerCode != null)
     {
         <title> @Model.result.InnerCode.Name</title>
     }
     else
     {
         <title>请稍后，正在加载</title>
-    }
+    }*@
     @Styles.Render("~/Content/bootstrapcss")
 </head>
 <body style="background-color:rgba(0,0,0,.03)">
@@ -34,42 +32,81 @@
                 </div>
                 <p class="
         -text" style="padding-top:1em">
-                    <img width="300" height="300" src="http://qrcodes-mskb.oss-cn-shanghai.aliyuncs.com/%E5%A4%B4%E5%83%8F.png" />
+                    <img id="qrcodeImg" width="300" height="300" src="http://qrcodes-mskb.oss-cn-shanghai.aliyuncs.com/%E5%A4%B4%E5%83%8F.png" />
                 </p>
                 <p class="card-text"><small class="text-muted">我是错误信息</small></p>
             </div>
         </div>
 
     </div>
-    @if (Model != null && Model.result.IsSucess && Model.result.InnerCode != null)
-    {
-        <div class="container">
-            <div style="padding-top:50px"></div>
-            <div class="card text-center" style="border-radius:6px">
-                <div class="card-body">
-                    <div class="row">
-                        <img class="img-rounded" src="@Model.result.InnerCode.HeaderImg" />
-                        <h5 class="card-title" style="padding-left:0.3em;padding-top:1em;font:bold">
-                            @Model.result.InnerCode.Name
-                        </h5>
+    @*@if (Model != null && Model.result.IsSucess && Model.result.InnerCode != null)
+        {
+            <div class="container">
+                <div style="padding-top:50px"></div>
+                <div class="card text-center" style="border-radius:6px">
+                    <div class="card-body">
+                        <div class="row">
+                            <img class="img-rounded" src="@Model.result.InnerCode.HeaderImg" />
+                            <h5 class="card-title" style="padding-left:0.3em;padding-top:1em;font:bold">
+                                @Model.result.InnerCode.Name
+                            </h5>
+                        </div>
+                        <p class="card-text" style="padding-top:1em">
+                            <img width="300" height="300" src="@Model.result.InnerCode.QrCodeUrl"/>
+                        </p>
+                        <p class="card-text"><small class="text-muted">@Model.result.Message</small></p>
                     </div>
-                    <p class="card-text" style="padding-top:1em">
-                        <img width="300" height="300" src="@Model.result.InnerCode.QrCodeUrl"/>
-                    </p>
-                    <p class="card-text"><small class="text-muted">@Model.result.Message</small></p>
-                </div>
-              </div>
-        </div>
-    }
-    else if (Model != null && !Model.result.IsSucess)
-    {
-        <p>
-            @Model.result.Message
-        </p>
-    }
+                  </div>
+            </div>
+        }
+        else if (Model != null && !Model.result.IsSucess)
+        {
+            <p>
+                @Model.result.Message
+            </p>
+        }*@
+    @Scripts.Render("~/bundles/jquery")
 </body>
 </html>
 
 <script>
-
-</script>*@
+    $(function () {
+        $("#qrcodeImg").on({
+            touchstart: function (e) {
+                timeOutEvent = setTimeout("longPress()", 500);
+                e.preventDefault();
+            },
+            touchmove: function () {
+                clearTimeout(timeOutEvent);
+                timeOutEvent = 0;
+            },
+            touchend: function () {
+                clearTimeout(timeOutEvent);
+                if (timeOutEvent != 0) {
+                }
+                return false;
+            }
+        })
+    });
+    function longPress() {
+        timeOutEvent = 0;
+        $.ajax({
+            type: "POST",//FromMethod
+            url: "/Home/LongPress",//"/Controller/Action"，记住这里前面一定记得要有"/".
+            data: {
+                openId:'',
+                userId: '',
+                activityId: '',
+                ownerUserId: '',
+                innerCodeId: '',
+                publicityId: ''
+            },//参数，无参数填空
+            success: function (msg) {//请求成功后执行的方法
+                
+            },
+            error: function (err) {//请求错误后执行的方法
+                alert(err)
+            }
+        });
+    }
+</script>

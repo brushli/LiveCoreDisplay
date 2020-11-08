@@ -5,8 +5,9 @@ using System.Web;
 
 namespace LiveCodeDisplayA.Models
 {
-    public class AbpResult<T>
+    public partial class AbpResult<T>
     {
         public T result { set; get; }
     }
+   
 }

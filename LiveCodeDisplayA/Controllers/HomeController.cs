@@ -17,9 +17,11 @@ namespace LiveCodeDisplayA.Controllers
     {
         private readonly string GetWeChatUserInfoUrl = "http://106.15.72.245:5005/api/WeChat/GetWeChatUserInfo";
         private readonly string ScanCodeUrl = "http://106.15.72.245:5005/api/services/app/QrCodeActivitys/ScanCode";
+        private readonly string LongPressUrl = "http://106.15.72.245:5005/api/services/app/QrCodeActivityInnerCode/LongPress";
         public ActionResult Index(string activityId, string userId, string ownerUserId, string publicityId,string code,string state)
         {
-            if (!string.IsNullOrEmpty(code))
+            return View();
+            /*if (!string.IsNullOrEmpty(code))
             {
                 try
                 {
@@ -68,8 +70,31 @@ namespace LiveCodeDisplayA.Controllers
                 redirect_uri = HttpUtility.UrlEncode(redirect_uri);
                 //引导页面，用ss来获取openid
                 var wecharUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxfb0c4f305db81aa6&redirect_uri=" + redirect_uri + "&response_type=code&scope=snsapi_base&state=scancode#wechat_redirect";
-                return redi Redirect(wecharUrl);
-            }
+                return Redirect(wecharUrl);
+            }*/
+        }
+        /// <summary>
+        /// 长按二维码
+        /// </summary>
+        /// <param name="activityId"></param>
+        /// <param name="userId"></param>
+        /// <param name="ownerUserId"></param>
+        /// <param name="publicityId"></param>
+        /// <param name="openId"></param>
+        /// <param name="innerCodeId"></param>
+        /// <returns></returns>
+        public ActionResult LongPress(string activityId, string userId, string ownerUserId, string publicityId, string openId, string innerCodeId)
+        {
+
+            //获取信息
+            var requestJson = JsonConvert.SerializeObject(new { activityId, userId, ownerUserId, publicityId, openId, innerCodeId });
+            HttpContent httpContent = new StringContent(requestJson);
+            httpContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            var httpClient = new HttpClient();
+            var responseJson = httpClient.PostAsync(LongPressUrl, httpContent).Result.Content.ReadAsStringAsync().Result;
+            //转换为json对象
+            ResultDto longPressResponse = JsonConvert.DeserializeObject<ResultDto>(responseJson);
+            return Json(longPressResponse);
         }
     }
 }
