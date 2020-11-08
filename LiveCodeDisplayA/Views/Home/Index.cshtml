@@ -1,0 +1,75 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+    Layout = null;
+}
+@*@model LiveCodeDisplayA.Models.AbpResult<LiveCodeDisplayA.Models.ScanQrCodeResult>*@
+@ViewBag.s
+@*<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    @if (Model != null && Model.result.IsSucess && Model.result.InnerCode != null)
+    {
+        <title> @Model.result.InnerCode.Name</title>
+    }
+    else
+    {
+        <title>请稍后，正在加载</title>
+    }
+    @Styles.Render("~/Content/bootstrapcss")
+</head>
+<body style="background-color:rgba(0,0,0,.03)">
+    <div class="container">
+        <div style="padding-top:50px"></div>
+        <div class="card text-center" style="border-radius:6px">
+            <div class="card-body">
+                <div class="row">
+                    <img class="img-rounded" src="http://qrcodes-mskb.oss-cn-shanghai.aliyuncs.com/%E5%A4%B4%E5%83%8F.png" />
+                    <h5 class="card-title" style="padding-left:0.3em;padding-top:1em;font:bold">
+                        我是群名称
+                    </h5>
+                </div>
+                <p class="
+        -text" style="padding-top:1em">
+                    <img width="300" height="300" src="http://qrcodes-mskb.oss-cn-shanghai.aliyuncs.com/%E5%A4%B4%E5%83%8F.png" />
+                </p>
+                <p class="card-text"><small class="text-muted">我是错误信息</small></p>
+            </div>
+        </div>
+
+    </div>
+    @if (Model != null && Model.result.IsSucess && Model.result.InnerCode != null)
+    {
+        <div class="container">
+            <div style="padding-top:50px"></div>
+            <div class="card text-center" style="border-radius:6px">
+                <div class="card-body">
+                    <div class="row">
+                        <img class="img-rounded" src="@Model.result.InnerCode.HeaderImg" />
+                        <h5 class="card-title" style="padding-left:0.3em;padding-top:1em;font:bold">
+                            @Model.result.InnerCode.Name
+                        </h5>
+                    </div>
+                    <p class="card-text" style="padding-top:1em">
+                        <img width="300" height="300" src="@Model.result.InnerCode.QrCodeUrl"/>
+                    </p>
+                    <p class="card-text"><small class="text-muted">@Model.result.Message</small></p>
+                </div>
+              </div>
+        </div>
+    }
+    else if (Model != null && !Model.result.IsSucess)
+    {
+        <p>
+            @Model.result.Message
+        </p>
+    }
+</body>
+</html>
+
+<script>
+
+</script>*@
