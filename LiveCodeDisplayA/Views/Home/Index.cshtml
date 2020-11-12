@@ -71,6 +71,38 @@
 
 <script>
     $(function () {
+        
+        var activityId = '@ViewBag.activityId';
+        var ownerUserId = '@ViewBag.ownerUserId';
+        var publicityId = '@ViewBag.publicityId';
+        var userId = '@ViewBag.userId';
+        var openid = '@ViewBag.openid';
+        if (openid == null || openid === undefined || openid=='') {
+            if (window.localStorage) {
+                openid = window.localStorage.getItem('jzlm_openid');
+                if (openid == null || openid === undefined || openid == '') {
+
+                    //进行到微信进行跳转
+                    var parm = "activityId=" + activityId + "&userId=" + userId + "&ownerUserId=" + ownerUserId + "&publicityId=" + publicityId;
+                    location.href = '/Home/RedirectToWeChat?' + parm;
+                    return;
+                }
+                else {
+                    //进行到微信进行跳转
+                    var parm = "activityId=" + activityId + "&userId=" + userId + "&ownerUserId=" + ownerUserId + "&publicityId=" + publicityId + "&openid=" + openid;
+                    location.href = '/Home/Index?' + parm;
+                    return;
+                }
+            }
+        }
+        else {
+            openid = window.localStorage.setItem('jzlm_openid', openid);
+        }
+        var state = {
+            title: "title",
+            url: "#"
+        };
+        window.history.pushState(state, "title", '#');
         $("#qrcodeImg").on({
             touchstart: function (e) {
                 timeOutEvent = setTimeout("longPress()", 500);
@@ -102,7 +134,7 @@
                 publicityId: ''
             },//参数，无参数填空
             success: function (msg) {//请求成功后执行的方法
-                
+
             },
             error: function (err) {//请求错误后执行的方法
                 alert(err)
