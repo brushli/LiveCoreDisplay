@@ -19,6 +19,16 @@ namespace LiveCodeDisplayA.Controllers
         private readonly string ScanCodeUrl = "http://106.15.72.245:5005/api/services/app/QrCodeActivitys/ScanCode";
         private readonly string LongPressUrl = "http://106.15.72.245:5005/api/services/app/QrCodeActivityInnerCode/LongPress";
         private readonly string OpenIdCookiesKey = "jzlm_openid";
+        /// <summary>
+        /// 扫码首页
+        /// </summary>
+        /// <param name="activityId"></param>
+        /// <param name="userId"></param>
+        /// <param name="ownerUserId"></param>
+        /// <param name="publicityId"></param>
+        /// <param name="code"></param>
+        /// <param name="state"></param>
+        /// <returns></returns>
         public ActionResult Index(string activityId, string userId, string ownerUserId, string publicityId, string code, string state)
         {
             ViewBag.activityId = activityId;
@@ -67,6 +77,7 @@ namespace LiveCodeDisplayA.Controllers
                     {
                         scanCodeResult.result.InnerCode.HeaderImg = "http://qrcodes-mskb.oss-cn-shanghai.aliyuncs.com/%E5%A4%B4%E5%83%8F.png";
                     }
+                    ViewBag.innerCodeId = scanCodeResult.result.InnerCode.Id;
                     return View(scanCodeResult);
                 }
                 catch (Exception)
@@ -76,7 +87,7 @@ namespace LiveCodeDisplayA.Controllers
             }
             else
             {
-                var openId = Request.Cookies[OpenIdCookiesKey];
+                var openId = Request.Cookies[OpenIdCookiesKey];                
                 if (openId!=null)
                 {
                     var httpClient = new HttpClient();
@@ -88,6 +99,7 @@ namespace LiveCodeDisplayA.Controllers
                         ownerUserId,
                         publicityId,
                     });
+                    ViewBag.openid = openId.Value;
                     var httpContent = new StringContent(requestJson);
                     httpContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
                     var responseJson = httpClient.PostAsync(ScanCodeUrl, httpContent).Result.Content.ReadAsStringAsync().Result;
@@ -100,6 +112,7 @@ namespace LiveCodeDisplayA.Controllers
                     {
                         scanCodeResult.result.InnerCode.HeaderImg = "http://qrcodes-mskb.oss-cn-shanghai.aliyuncs.com/%E5%A4%B4%E5%83%8F.png";
                     }
+                    ViewBag.innerCodeId = scanCodeResult.result.InnerCode.Id;
                     return View(scanCodeResult);
                 }
                 else

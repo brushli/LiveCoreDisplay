@@ -50,7 +50,7 @@
                             </h5>
                         </div>
                         <p class="card-text" style="padding-top:1em">
-                            <img width="300" height="300" src="@Model.result.InnerCode.QrCodeUrl"/>
+                            <img id="qrcodeImg" width="300" height="300" src="@Model.result.InnerCode.QrCodeUrl"/>
                         </p>
                         <p class="card-text"><small class="text-muted">@Model.result.Message</small></p>
                     </div>
@@ -73,6 +73,7 @@
     var publicityId = '@ViewBag.publicityId';
     var userId = '@ViewBag.userId';
     var openid = '@ViewBag.openid';
+    var innerCodeId = '@ViewBag.innerCodeId';
     $(function () {
         $("#qrcodeImg").on({
             touchstart: function (e) {
