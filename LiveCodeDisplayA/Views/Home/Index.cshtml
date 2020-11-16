@@ -10,17 +10,17 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     @*@if (Model != null && Model.result.IsSucess && Model.result.InnerCode != null)
-    {
-        <title> @Model.result.InnerCode.Name</title>
-    }
-    else
-    {
-        <title>请稍后，正在加载</title>
-    }*@
+        {
+            <title> @Model.result.InnerCode.Name</title>
+        }
+        else
+        {
+            <title>请稍后，正在加载</title>
+        }*@
     @Styles.Render("~/Content/bootstrapcss")
 </head>
 <body style="background-color:rgba(0,0,0,.03)">
-    <div class="container">
+    @*<div class="container">
         <div style="padding-top:50px"></div>
         <div class="card text-center" style="border-radius:6px">
             <div class="card-body">
@@ -30,16 +30,14 @@
                         我是群名称
                     </h5>
                 </div>
-                <p class="
-        -text" style="padding-top:1em">
+                <p  style="padding-top:1em">
                     <img id="qrcodeImg" width="300" height="300" src="http://qrcodes-mskb.oss-cn-shanghai.aliyuncs.com/%E5%A4%B4%E5%83%8F.png" />
                 </p>
                 <p class="card-text"><small class="text-muted">我是错误信息</small></p>
             </div>
         </div>
-
-    </div>
-    @*@if (Model != null && Model.result.IsSucess && Model.result.InnerCode != null)
+    </div>*@
+    @if (Model != null && Model.result.IsSucess && Model.result.InnerCode != null)
         {
             <div class="container">
                 <div style="padding-top:50px"></div>
@@ -64,45 +62,18 @@
             <p>
                 @Model.result.Message
             </p>
-        }*@
+        }
     @Scripts.Render("~/bundles/jquery")
 </body>
 </html>
 
 <script>
+    var activityId = '@ViewBag.activityId';
+    var ownerUserId = '@ViewBag.ownerUserId';
+    var publicityId = '@ViewBag.publicityId';
+    var userId = '@ViewBag.userId';
+    var openid = '@ViewBag.openid';
     $(function () {
-        
-        var activityId = '@ViewBag.activityId';
-        var ownerUserId = '@ViewBag.ownerUserId';
-        var publicityId = '@ViewBag.publicityId';
-        var userId = '@ViewBag.userId';
-        var openid = '@ViewBag.openid';
-        if (openid == null || openid === undefined || openid=='') {
-            if (window.localStorage) {
-                openid = window.localStorage.getItem('jzlm_openid');
-                if (openid == null || openid === undefined || openid == '') {
-
-                    //进行到微信进行跳转
-                    var parm = "activityId=" + activityId + "&userId=" + userId + "&ownerUserId=" + ownerUserId + "&publicityId=" + publicityId;
-                    location.href = '/Home/RedirectToWeChat?' + parm;
-                    return;
-                }
-                else {
-                    //进行到微信进行跳转
-                    var parm = "activityId=" + activityId + "&userId=" + userId + "&ownerUserId=" + ownerUserId + "&publicityId=" + publicityId + "&openid=" + openid;
-                    location.href = '/Home/Index?' + parm;
-                    return;
-                }
-            }
-        }
-        else {
-            openid = window.localStorage.setItem('jzlm_openid', openid);
-        }
-        var state = {
-            title: "title",
-            url: "#"
-        };
-        window.history.pushState(state, "title", '#');
         $("#qrcodeImg").on({
             touchstart: function (e) {
                 timeOutEvent = setTimeout("longPress()", 500);
@@ -126,12 +97,12 @@
             type: "POST",//FromMethod
             url: "/Home/LongPress",//"/Controller/Action"，记住这里前面一定记得要有"/".
             data: {
-                openId:'',
-                userId: '',
-                activityId: '',
-                ownerUserId: '',
-                innerCodeId: '',
-                publicityId: ''
+                openId: openid,
+                userId: userId,
+                activityId: activityId,
+                ownerUserId: ownerUserId,
+                innerCodeId: innerCodeId,
+                publicityId: publicityId
             },//参数，无参数填空
             success: function (msg) {//请求成功后执行的方法
 
