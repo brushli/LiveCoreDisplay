@@ -87,13 +87,13 @@ namespace LiveCodeDisplayA.Controllers
             }
             else
             {
-                var openId = Request.Cookies[OpenIdCookiesKey];                
-                if (openId!=null)
+                var openId = Request.Cookies[OpenIdCookiesKey];
+                if (openId != null)
                 {
                     var httpClient = new HttpClient();
                     var requestJson = JsonConvert.SerializeObject(new
                     {
-                        openid= openId.Value,
+                        openid = openId.Value,
                         userId,
                         activityId,
                         ownerUserId,
@@ -106,7 +106,11 @@ namespace LiveCodeDisplayA.Controllers
                     AbpResult<ScanQrCodeResult> scanCodeResult = JsonConvert.DeserializeObject<AbpResult<ScanQrCodeResult>>(responseJson);
                     if (scanCodeResult == null)
                     {
-                        return Content("服务器出现错误，请稍后在扫码！" + responseJson);
+                        return Content($"<h1>服务器出现错误，请稍后在扫码！{responseJson}</h1>");
+                    }
+                    else if (scanCodeResult.result != null && scanCodeResult.result.InnerCode == null)
+                    {
+                        return Content($"<h1>{scanCodeResult.result.Message}</h1>");
                     }
                     else if (scanCodeResult.result.InnerCode != null && string.IsNullOrEmpty(scanCodeResult.result.InnerCode.HeaderImg))
                     {

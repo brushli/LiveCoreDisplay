@@ -1,4 +1,5 @@
-﻿using System.Web;
+﻿using LiveCodeDisplayA.Attrubites;
+using System.Web;
 using System.Web.Mvc;
 
 namespace LiveCodeDisplayA
@@ -7,7 +8,7 @@ namespace LiveCodeDisplayA
     {
         public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
-            filters.Add(new HandleErrorAttribute());
+            filters.Add(new ExceptionHandleErrorAttribute());
         }
     }
 }
