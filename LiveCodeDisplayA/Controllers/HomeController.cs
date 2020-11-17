@@ -152,5 +152,9 @@ namespace LiveCodeDisplayA.Controllers
             AbpResult<ResultDto> longPressResponse = JsonConvert.DeserializeObject<AbpResult<ResultDto>>(responseJson);
             return Json(longPressResponse);
         }
+        public ActionResult TestIndex()
+        {
+            return View();
+        }
     }
 }
