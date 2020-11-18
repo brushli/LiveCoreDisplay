@@ -35,7 +35,39 @@ namespace LiveCodeDisplayA.Controllers
             ViewBag.userId = userId;
             ViewBag.ownerUserId = ownerUserId;
             ViewBag.publicityId = publicityId;
-            if (!string.IsNullOrEmpty(code))
+            var openId = Request.Cookies[OpenIdCookiesKey];
+            if (openId != null)
+            {
+                var httpClient = new HttpClient();
+                var requestJson = JsonConvert.SerializeObject(new
+                {
+                    openid = openId.Value,
+                    userId,
+                    activityId,
+                    ownerUserId,
+                    publicityId,
+                });
+                ViewBag.openid = openId.Value;
+                var httpContent = new StringContent(requestJson);
+                httpContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                var responseJson = httpClient.PostAsync(ScanCodeUrl, httpContent).Result.Content.ReadAsStringAsync().Result;
+                AbpResult<ScanQrCodeResult> scanCodeResult = JsonConvert.DeserializeObject<AbpResult<ScanQrCodeResult>>(responseJson);
+                if (scanCodeResult == null)
+                {
+                    return Content($"<h1>服务器出现错误，请稍后在扫码！{responseJson}</h1>");
+                }
+                else if (scanCodeResult.result != null && scanCodeResult.result.InnerCode == null)
+                {
+                    return Content($"<h1>{scanCodeResult.result.Message}</h1>");
+                }
+                else if (scanCodeResult.result.InnerCode != null && string.IsNullOrEmpty(scanCodeResult.result.InnerCode.HeaderImg))
+                {
+                    scanCodeResult.result.InnerCode.HeaderImg = "http://qrcodes-mskb.oss-cn-shanghai.aliyuncs.com/%E5%A4%B4%E5%83%8F.png";
+                }
+                ViewBag.innerCodeId = scanCodeResult.result.InnerCode.Id;
+                return View(scanCodeResult);
+            }
+            else if (!string.IsNullOrEmpty(code))
             {
                 try
                 {
@@ -82,45 +114,6 @@ namespace LiveCodeDisplayA.Controllers
                 }
                 catch (Exception)
                 {
-                    return Content("请退出重新扫码！");
-                }
-            }
-            else
-            {
-                var openId = Request.Cookies[OpenIdCookiesKey];
-                if (openId != null)
-                {
-                    var httpClient = new HttpClient();
-                    var requestJson = JsonConvert.SerializeObject(new
-                    {
-                        openid = openId.Value,
-                        userId,
-                        activityId,
-                        ownerUserId,
-                        publicityId,
-                    });
-                    ViewBag.openid = openId.Value;
-                    var httpContent = new StringContent(requestJson);
-                    httpContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-                    var responseJson = httpClient.PostAsync(ScanCodeUrl, httpContent).Result.Content.ReadAsStringAsync().Result;
-                    AbpResult<ScanQrCodeResult> scanCodeResult = JsonConvert.DeserializeObject<AbpResult<ScanQrCodeResult>>(responseJson);
-                    if (scanCodeResult == null)
-                    {
-                        return Content($"<h1>服务器出现错误，请稍后在扫码！{responseJson}</h1>");
-                    }
-                    else if (scanCodeResult.result != null && scanCodeResult.result.InnerCode == null)
-                    {
-                        return Content($"<h1>{scanCodeResult.result.Message}</h1>");
-                    }
-                    else if (scanCodeResult.result.InnerCode != null && string.IsNullOrEmpty(scanCodeResult.result.InnerCode.HeaderImg))
-                    {
-                        scanCodeResult.result.InnerCode.HeaderImg = "http://qrcodes-mskb.oss-cn-shanghai.aliyuncs.com/%E5%A4%B4%E5%83%8F.png";
-                    }
-                    ViewBag.innerCodeId = scanCodeResult.result.InnerCode.Id;
-                    return View(scanCodeResult);
-                }
-                else
-                {
                     var redirect_uri = "http://ysy.hrtechsh.com/?" + "activityId=" + activityId + "&userId=" + userId + "&ownerUserId=" + ownerUserId + "&publicityId=" + publicityId;
                     redirect_uri = HttpUtility.UrlEncode(redirect_uri);
                     //引导页面，用ss来获取openid
@@ -128,6 +121,16 @@ namespace LiveCodeDisplayA.Controllers
                     return Redirect(wecharUrl);
                 }
             }
+            else
+            {
+                var redirect_uri = "http://ysy.hrtechsh.com/?" + "activityId=" + activityId + "&userId=" + userId + "&ownerUserId=" + ownerUserId + "&publicityId=" + publicityId;
+                redirect_uri = HttpUtility.UrlEncode(redirect_uri);
+                //引导页面，用ss来获取openid
+                var wecharUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxfb0c4f305db81aa6&redirect_uri=" + redirect_uri + "&response_type=code&scope=snsapi_base&state=scancode#wechat_redirect";
+                return Redirect(wecharUrl);
+            }
+            
+            
         }
         /// <summary>
         /// 长按二维码
