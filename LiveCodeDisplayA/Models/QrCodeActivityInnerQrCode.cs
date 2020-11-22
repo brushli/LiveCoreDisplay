@@ -56,5 +56,6 @@ namespace LiveCodeDisplayA.Models
         /// 限制扫码次数
         /// </summary>
         public int? LimitNumForClientScan { set; get; }
+        public string DisplayUrl { set; get; }
     }
 }

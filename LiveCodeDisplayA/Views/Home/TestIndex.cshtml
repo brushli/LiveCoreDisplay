@@ -10,47 +10,149 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>测试使用</title>
-    @Styles.Render("~/Content/bootstrapcss")
-    
+    @*@Styles.Render("~/Content/bootstrapcss")*@
+<style type="text/css">
+   
+</style>
 </head>
-<body style="background-color:rgb(240,240,240)">
-    <div class="card" style="border-radius:10px;margin-left:6%;margin-right:6%;margin-top:20%;border-width:0">
+<body>
+    
+    
+    <img style="position:absolute; top:0px;left:0px; width:100%;" src="http://qrcodes-mskb.oss-cn-shanghai.aliyuncs.com/群码/效果图/bed575d7-4bc6-4438-93e2-bd0df842f6cd.jpg" />
+    <!--<div class="card" style="border-radius:10px;margin-left:6%;margin-right:6%;margin-top:20%;border-width:0">
         <div class="row" style="margin-left:20px;margin-top:20px">
             <img class="img-rounded" height="60" width="70" src="http://qrcodes-mskb.oss-cn-shanghai.aliyuncs.com/%E5%A4%B4%E5%83%8F.png" />
             <h6 class="card-title" style="padding-left:0.5em;padding-top:1em;">
                 <strong>学习用品团购④群-中小家长联盟</strong>
             </h6>
         </div>
-        <div class="card-body text-center">
-            @*<img class="img-rounded pull-left" height="60" width="70" src="http://qrcodes-mskb.oss-cn-shanghai.aliyuncs.com/%E5%A4%B4%E5%83%8F.png" /><h7><strong>学习用品团购④群-中小家</strong></h7>*@
-            <p style="padding-top:0.3em">
+        <div class="card-body text-center">-->
+    @*<img class="img-rounded pull-left" height="60" width="70" src="http://qrcodes-mskb.oss-cn-shanghai.aliyuncs.com/%E5%A4%B4%E5%83%8F.png" /><h7><strong>学习用品团购④群-中小家</strong></h7>*@
+    <!--<p style="padding-top:0.3em">
                 <img id="qrcodeImg" class="text-center" width="300" height="300" src="http://qrcodes-mskb.oss-cn-shanghai.aliyuncs.com/%E5%A4%B4%E5%83%8F.png" />
             </p>
-            <p class="card-text"><small class="text-muted">我是错误信息</small></p> 
+            <p class="card-text"><small class="text-muted">我是错误信息</small></p>
         </div>
-    </div>
+    </div>-->
     <!--<div class="container">-->
-        @*<div class="card" style="border-radius:10px">
-                <div class="card-body" >
-                    <div class="row">
-                        <img class="img-rounded" style="padding-left:0.3em;" height="60" width="70" src="http://qrcodes-mskb.oss-cn-shanghai.aliyuncs.com/%E5%A4%B4%E5%83%8F.png" />
-                        <h5 class="card-title" style="padding-left:0.3em;padding-top:1em;font:bold">
-                            <span>学习用品团购④群-中小家长联盟</span>
-                        </h5>
-                    </div>
-                    <p  style="padding-top:1.5em">
-                        <img id="qrcodeImg" class="center-block" width="300" height="300" src="http://qrcodes-mskb.oss-cn-shanghai.aliyuncs.com/%E5%A4%B4%E5%83%8F.png" />
-                    </p>
-                    <p class="card-text text-center"><small class="text-muted">我是错误信息</small></p>
+    @*<div class="card" style="border-radius:10px">
+            <div class="card-body" >
+                <div class="row">
+                    <img class="img-rounded" style="padding-left:0.3em;" height="60" width="70" src="http://qrcodes-mskb.oss-cn-shanghai.aliyuncs.com/%E5%A4%B4%E5%83%8F.png" />
+                    <h5 class="card-title" style="padding-left:0.3em;padding-top:1em;font:bold">
+                        <span>学习用品团购④群-中小家长联盟</span>
+                    </h5>
                 </div>
+                <p  style="padding-top:1.5em">
+                    <img id="qrcodeImg" class="center-block" width="300" height="300" src="http://qrcodes-mskb.oss-cn-shanghai.aliyuncs.com/%E5%A4%B4%E5%83%8F.png" />
+                </p>
+                <p class="card-text text-center"><small class="text-muted">我是错误信息</small></p>
             </div>
-        *@
+        </div>
+    *@
     <!--</div>-->
+    @*@Scripts.Render("~/bundles/jquery")*@
+</body>
+</html>
 
-    @Scripts.Render("~/bundles/jquery")
+
+
+@*@{
+    ViewBag.Title = "请稍后,正在加载";
+    Layout = null;
+}
+@model LiveCodeDisplayA.Models.AbpResult<LiveCodeDisplayA.Models.ScanQrCodeResult>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @if (Model != null && Model.result.IsSucess && Model.result.InnerCode != null)
+    {
+        <title> @Model.result.InnerCode.Name</title>
+    }
+    else
+    {
+        <title>请稍后，正在加载</title>
+    }
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+</head>
+<body style="background-color:rgb(240,240,240)">
+    @if (Model != null && Model.result.IsSucess && Model.result.InnerCode != null)
+    {
+        <div class="card" style="border-radius:10px;margin-left:6%;margin-right:6%;margin-top:20%;border-width:0">
+            <div class="row" style="margin-left:20px;margin-top:20px">
+                <img class="img-rounded" height="60" width="70" src="@Model.result.InnerCode.HeaderImg" />
+                <h6 class="card-title" style="padding-left:0.5em;padding-top:1em;">
+                    <strong> @Model.result.InnerCode.Name</strong>
+                </h6>
+            </div>
+            <div class="card-body text-center">
+                <p style="padding-top:0.3em">
+                    <img id="qrcodeImg" class="text-center" width="300" height="300" src="@Model.result.InnerCode.QrCodeUrl" />
+                </p>
+                <p class="card-text"><small class="text-muted">@Model.result.Message</small></p>
+            </div>
+        </div>
+    }
+    else if (Model != null && !Model.result.IsSucess)
+    {
+        <p>
+            @Model.result.Message
+        </p>
+    }
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
 </body>
 </html>
 
 <script>
-   
-</script>
+    var activityId = '@ViewBag.activityId';
+    var ownerUserId = '@ViewBag.ownerUserId';
+    var publicityId = '@ViewBag.publicityId';
+    var userId = '@ViewBag.userId';
+    var openid = '@ViewBag.openid';
+    var innerCodeId = '@ViewBag.innerCodeId';
+    $(function () {
+        $("#qrcodeImg").on({
+            touchstart: function (e) {
+                timeOutEvent = setTimeout("longPress()", 500);
+            },
+            touchmove: function () {
+                clearTimeout(timeOutEvent);
+                timeOutEvent = 0;
+            },
+            touchend: function () {
+                clearTimeout(timeOutEvent);
+                if (timeOutEvent != 0) {
+                }
+                return false;
+            }
+        })
+    });
+    function longPress() {
+        timeOutEvent = 0;
+        $.ajax({
+            type: "POST",//FromMethod
+            url: "/Home/LongPress",//"/Controller/Action"，记住这里前面一定记得要有"/".
+            data: {
+                openId: openid,
+                userId: userId,
+                activityId: activityId,
+                ownerUserId: ownerUserId,
+                innerCodeId: innerCodeId,
+                publicityId: publicityId
+            },//参数，无参数填空
+            success: function (msg) {//请求成功后执行的方法
+
+            },
+            error: function (err) {//请求错误后执行的方法
+                alert(err)
+            }
+        });
+    }
+</script>*@
+
+
+
+

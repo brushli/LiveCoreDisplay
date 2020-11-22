@@ -157,6 +157,7 @@ namespace LiveCodeDisplayA.Controllers
         }
         public ActionResult TestIndex()
         {
+            ViewBag.ss = "http://qrcodes-mskb.oss-cn-shanghai.aliyuncs.com/%E7%BE%A4%E7%A0%81/%E6%95%88%E6%9E%9C%E5%9B%BE/eb20243d-65ad-4e70-9cf2-04de8bdd179b.jpg";
             return View();
         }
     }
