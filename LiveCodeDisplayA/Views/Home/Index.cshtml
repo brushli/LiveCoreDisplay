@@ -18,16 +18,17 @@
         <title>请稍后，正在加载</title>
     }
 </head>
-<body>
+<body style="background-color:rgb(237,237,237)">
+
     @if (Model != null && Model.result.IsSucess && Model.result.InnerCode != null)
     {
-        <img id="qrcodeImg" style="position:absolute; top:0px;left:0px; width:100%;height:100%" src="@Model.result.InnerCode.DisplayUrl" />
+        <img id="qrcodeImg" style="position:absolute; top:0px;left:0px; width:100%;" src="@Model.result.InnerCode.DisplayUrl" />
     }
     else
     {
         <h4>系统错误，请稍后再试</h4>
     }
-<script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
 </body>
 </html>
 
