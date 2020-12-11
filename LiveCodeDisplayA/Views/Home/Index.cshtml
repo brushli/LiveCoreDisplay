@@ -2,16 +2,16 @@
     ViewBag.Title = "请稍后,正在加载";
     Layout = null;
 }
-@model LiveCodeDisplayA.Models.AbpResult<LiveCodeDisplayA.Models.ScanQrCodeResult>
+@model LiveCodeDisplayA.Models.ScanQrCodeResult
 <!DOCTYPE html>
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    @if (Model != null && Model.result.IsSucess && Model.result.InnerCode != null)
+    @if (Model != null && Model.IsSucess && Model.InnerCode != null)
     {
-        <title> @Model.result.InnerCode.Name</title>
+        <title> @Model.InnerCode.Name</title>
     }
     else
     {
@@ -20,13 +20,17 @@
 </head>
 <body style="background-color:rgb(237,237,237)">
 
-    @if (Model != null && Model.result.IsSucess && Model.result.InnerCode != null)
+    @if (Model != null && Model.IsSucess && Model.InnerCode != null)
     {
-        <img id="qrcodeImg" style="position:absolute; top:0px;left:0px; width:100%;" src="@Model.result.InnerCode.DisplayUrl" />
+        <img id="qrcodeImg" style="position:absolute; top:0px;left:0px; width:100%;" src="@Model.InnerCode.DisplayUrl" />
+    }
+    else if (Model != null && !Model.IsSucess)
+    {
+        <h4>系统错误，请稍后再试:@Model.Message</h4>
     }
     else
     {
-        <h4>系统错误，请稍后再试</h4>
+        <h4>系统错误，请稍后再试!</h4>
     }
     <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
 </body>

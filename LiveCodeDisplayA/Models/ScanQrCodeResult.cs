@@ -27,5 +27,6 @@ namespace LiveCodeDisplayA.Models
         /// 获取的码
         /// </summary>
         public QrCodeActivityInnerQrCode InnerCode { set; get; }
+        public QrCodeActivitys QrCodeActivity { set; get; }
     }
 }

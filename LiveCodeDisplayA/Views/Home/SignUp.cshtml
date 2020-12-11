@@ -1,17 +1,154 @@
-﻿
-@{
+﻿@{
+    ViewBag.Title = "报名信息填写";
     Layout = null;
 }
-
 <!DOCTYPE html>
-
-<html>
+<html lang="chn">
 <head>
-    <meta name="viewport" content="width=device-width" />
-    <title>SignUp</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>报名信息填写</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.css" integrity="sha512-63+XcK3ZAZFBhAVZ4irKWe9eorFG0qYsy2CaM5Z+F3kUn76ukznN0cp4SArgItSbDFD1RrrWgVMBY9C/2ZoURA==" crossorigin="anonymous" />
+    <link href="https://cdn.bootcss.com/bootstrap-validator/0.5.3/css/bootstrapValidator.min.css" rel="stylesheet" />
 </head>
 <body>
-    <div> 
-    </div>
+    @Html.Raw(ViewBag.ContentHtml)
+   @* <form role="form" autocomplete="off">
+        <div id="legend" class="">
+            <fieldset><legend class="">报名信息填写</legend></fieldset>
+        </div>
+        <div class="form-group">
+            <label>选择日期：</label>
+            <div class="input-group from-date" id="datetimepicker1">
+                <input type="text" class="form-control" />
+                <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+            </div>
+        </div>
+        <div class="form-group">
+        <label for="ChooseTime" class="col-sm-2 control-label">选择时间</label>
+        <div class="input-group from-date"> 
+            <input type="text" class="form-control">
+            <span class="input-group-addon">
+            <span class="glyphicon glyphicon-calendar">
+                </span>
+                </span></div></div>
+        <div class="form-group text-center">
+            <button type="button" id="submit" name="submit" class="btn btn-primary">报名</button>
+            <button type="button" id="reset" name="reset" class="btn btn-primary">重置</button>
+        </div>
+    </form>*@
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap-validator/0.5.3/js/bootstrapValidator.min.js"></script>
+    <script src="https://cdn.bootcss.com/moment.js/2.24.0/moment-with-locales.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js" integrity="sha512-GDey37RZAxFkpFeJorEUwNoIbkTwsyC736KNSYucu1WJWFK9qTdzYub8ATxktr6Dwke7nbFaioypzbDOQykoRg==" crossorigin="anonymous"></script>
+    <script>
+        $(".from-date").datetimepicker({
+            format: "YYYY-MM-DD",
+            locale: moment.locale("zh-cn"),
+            showClose: true,	//是否显示关闭 按钮
+            viewMode: 'days',//天数模块展示，months则为以月展示
+            daysOfWeekDisabled: false,//星期几 禁止选择,参数 [num],多个逗号隔开
+            calendarWeeks: false,	//显示 周 是 今年第几周
+            toolbarPlacement:'default', //工具摆放的位置，top 则为上，默认为底
+            showTodayButton:true,	//是否工具栏 显示 直达今天天数的 按钮，默认false
+            showClear:false, //是否 工具栏显示  清空 输入框  的按钮。默认false
+        });
+        
+        $('form').bootstrapValidator({
+            message: 'This value is not valid',
+            feedbackIcons: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            fields: {
+                name: {
+                    message: '用户名验证失败',
+                    validators: {
+                        notEmpty: {
+                            message: '用户名不能为空'
+                        },
+                        stringLength: {
+                            min: 4,
+                            message: '用户名长度必须大于4个字符'
+                        },
+                    }
+                },
+                identity: {
+                    validators: {
+                        notEmpty: {
+                            message: '身份证号码不能为空'
+                        },
+                        callback: {
+                            message: '身份证号码格式错误',
+                            callback: function (value, validator) {
+                                if (!value) {
+                                    return true
+                                } else if (isCardNo(value)) {
+                                    return true;
+                                } else {
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                },
+                tel: {
+                    validators: {
+                        notEmpty: {
+                            message: '手机号不能为空'
+                        },
+                        regexp: {
+                            regexp: /^1\d{10}$/,
+                            message: '手机号格式错误'
+                        }
+                    }
+                }
+            }
+        });
+
+        var bootstrapValidator = $('form').data('bootstrapValidator');
+
+        // 提交时验证
+        $('#submit').on('click', function () {
+            bootstrapValidator.validate();
+            if (bootstrapValidator.isValid()) {
+                //表单提交的方法、比如ajax提交
+                alert('success');
+            }
+        })
+
+        // 重置表单
+        $('#reset').on('click', function () {
+            bootstrapValidator.resetForm();
+            $('input').val('')
+        })
+
+        // 验证身份证号
+        function isCardNo(card) {
+            let reg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
+            if (reg.test(card) === false) {
+                return false
+            } else {
+                return true
+            }
+        }
+
+        // 验证手机号
+        function checkMobile(str) {
+            let re = /^1\d{10}$/
+            if (re.test(str)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+    </script>   
 </body>
+
 </html>
