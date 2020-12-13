@@ -1,7 +1,14 @@
 ﻿@{
     ViewBag.Title = "报名信息填写";
     Layout = null;
+    string[] classTypes=null ;
+    var qrcode = (Model as BJ.LiveCodeDisplay.Web.Models.QrCodeActivitys);
+    if (qrcode != null&& !string.IsNullOrEmpty(qrcode.ClassType))
+    {
+        classTypes = qrcode.ClassType.Split(',');
+    }
 }
+@model BJ.LiveCodeDisplay.Web.Models.QrCodeActivitys
 <!DOCTYPE html>
 <html lang="chn">
 <head>
@@ -9,146 +16,165 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>报名信息填写</title>
     <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.css" integrity="sha512-63+XcK3ZAZFBhAVZ4irKWe9eorFG0qYsy2CaM5Z+F3kUn76ukznN0cp4SArgItSbDFD1RrrWgVMBY9C/2ZoURA==" crossorigin="anonymous" />
+    @*<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.css" integrity="sha512-63+XcK3ZAZFBhAVZ4irKWe9eorFG0qYsy2CaM5Z+F3kUn76ukznN0cp4SArgItSbDFD1RrrWgVMBY9C/2ZoURA==" crossorigin="anonymous" />*@
     <link href="https://cdn.bootcss.com/bootstrap-validator/0.5.3/css/bootstrapValidator.min.css" rel="stylesheet" />
+    <link href="https://cdn.bootcdn.net/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" rel="stylesheet">
 </head>
 <body>
-    @Html.Raw(ViewBag.ContentHtml)
-   @* <form role="form" autocomplete="off">
-        <div id="legend" class="">
-            <fieldset><legend class="">报名信息填写</legend></fieldset>
-        </div>
-        <div class="form-group">
-            <label>选择日期：</label>
-            <div class="input-group from-date" id="datetimepicker1">
-                <input type="text" class="form-control" />
-                <span class="input-group-addon">
-                    <span class="glyphicon glyphicon-calendar"></span>
-                </span>
+    @*@Html.Raw(ViewBag.ContentHtml)*@
+    <form role="form"
+          id="signUpForm"
+          action="/Home/SignUpCommit"
+          method="post"
+          autocomplete="off">
+        <fieldset>
+            <input type="hidden"  id="ActivityId" name="ActivityId" value="@ViewBag.activityId" />
+            <input type="hidden"  id="userId" name="UserId" value="@ViewBag.userId" />
+            <input type="hidden"  id="ownerUserId" name="OwnerUserId" value="@ViewBag.ownerUserId" />
+            <input type="hidden"  id="publicityId" name="PublicityId" value="@ViewBag.publicityId" />
+            <input type="hidden"  id="openid" name="Openid" value="@ViewBag.openid" />
+            <div id="legend" class="text-center">
+                <legend class="">报名信息填写</legend>
             </div>
-        </div>
-        <div class="form-group">
-        <label for="ChooseTime" class="col-sm-2 control-label">选择时间</label>
-        <div class="input-group from-date"> 
-            <input type="text" class="form-control">
-            <span class="input-group-addon">
-            <span class="glyphicon glyphicon-calendar">
-                </span>
-                </span></div></div>
-        <div class="form-group text-center">
-            <button type="button" id="submit" name="submit" class="btn btn-primary">报名</button>
-            <button type="button" id="reset" name="reset" class="btn btn-primary">重置</button>
-        </div>
-    </form>*@
+            <div class="form-group">
+                <label for="Name" class="col-sm-2 control-label">中文姓名</label>
+                <div class="col-sm-10">
+                    <input type="text"
+                           class="form-control"
+                           id="Name"
+                           name="Name"
+                           placeholder="请输入中文姓名" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="Grade" class="col-sm-2 control-label">年级</label>
+                <div class="col-sm-10">
+                    <select class="form-control" id="Grade" name="Grade">
+                        <option>一年级</option>
+                        <option>二年级</option>
+                        <option>二年级</option>
+                        <option>二年级</option>
+                        <option>二年级</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="Phone" class="col-sm-2 control-label">家长联系电话</label>
+                <div class="col-sm-10">
+                    <input type="text"
+                           class="form-control"
+                           id="Phone"
+                           name="Phone"
+                           placeholder="请输入家长联系电话" />
+                </div>
+            </div>
+            <div class="input-group">
+                <div class="col-sm-10 top-left">
+                    <input class="btn btn-info" type="button" id="getcode" value="点击获取手机验证码" />
+                    <span id="telephonenameTip"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="SmsCode" class="col-sm-2 control-label">验证码</label>
+                <div class="col-sm-10">
+                    <input type="text"
+                           class="form-control"
+                           id="SmsCode"
+                           name="SmsCode"
+                           placeholder="请输入短信验证码" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="School" class="col-sm-2 control-label">学校</label>
+                <div class="col-sm-10">
+                    <input type="text"
+                           class="form-control"
+                           id="School"
+                           name="School"
+                           placeholder="请输入学校" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="Area" class="col-sm-2 control-label">所在区域</label>
+                <div class="col-sm-10">
+                    <input type="text"
+                           class="form-control"
+                           id="Area"
+                           name="Area"
+                           placeholder="请输入所在区域" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="Address" class="col-sm-2 control-label">地址</label>
+                <div class="col-sm-10">
+                    <input type="text"
+                           class="form-control"
+                           id="Address"
+                           name="Address"
+                           placeholder="请输入地址" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="IDCard" class="col-sm-2 control-label">身份证号</label>
+                <div class="col-sm-10">
+                    <input type="text"
+                           class="form-control"
+                           id="IDCard"
+                           name="IDCard"
+                           placeholder="请输入身份证号" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="LevelOfDescription" class="col-sm-2 control-label">现有水平描述</label>
+                <div class="col-sm-10">
+                    <input type="text"
+                           class="form-control"
+                           id="LevelOfDescription"
+                           name="LevelOfDescription"
+                           placeholder="请输入现有水平描述" />
+                </div>
+            </div>
+            @if (classTypes != null && classTypes.Length > 0)
+            {
+                <div class="form-group">
+                    <label for="ClassType" class="col-sm-2 control-label">选择班型</label>
+                    <div class="col-sm-10">
+                        <select class="form-control" id="ClassType" name="ClassType">
+                            @foreach (var item in classTypes)
+                            {
+                                <option value="@item">@item</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            }
+            <div class="form-group">
+                <label for="ChooseTime" class="col-sm-2 control-label">选择时间</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control datepicker" id="ChooseTime" name="ChooseTime" />
+                </div>
+            </div>
+            <div class="form-group text-center">
+                <button type="button"
+                        id="submitBtn"
+                        name="submit"
+                        class="btn btn-primary">
+                    <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                    报名
+                </button>
+                <div></div>
+            </div>
+        </fieldset>
+    </form>
+
     <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://cdn.bootcss.com/bootstrap-validator/0.5.3/js/bootstrapValidator.min.js"></script>
-    <script src="https://cdn.bootcss.com/moment.js/2.24.0/moment-with-locales.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js" integrity="sha512-GDey37RZAxFkpFeJorEUwNoIbkTwsyC736KNSYucu1WJWFK9qTdzYub8ATxktr6Dwke7nbFaioypzbDOQykoRg==" crossorigin="anonymous"></script>
-    <script>
-        $(".from-date").datetimepicker({
-            format: "YYYY-MM-DD",
-            locale: moment.locale("zh-cn"),
-            showClose: true,	//是否显示关闭 按钮
-            viewMode: 'days',//天数模块展示，months则为以月展示
-            daysOfWeekDisabled: false,//星期几 禁止选择,参数 [num],多个逗号隔开
-            calendarWeeks: false,	//显示 周 是 今年第几周
-            toolbarPlacement:'default', //工具摆放的位置，top 则为上，默认为底
-            showTodayButton:true,	//是否工具栏 显示 直达今天天数的 按钮，默认false
-            showClear:false, //是否 工具栏显示  清空 输入框  的按钮。默认false
-        });
-        
-        $('form').bootstrapValidator({
-            message: 'This value is not valid',
-            feedbackIcons: {
-                valid: 'glyphicon glyphicon-ok',
-                invalid: 'glyphicon glyphicon-remove',
-                validating: 'glyphicon glyphicon-refresh'
-            },
-            fields: {
-                name: {
-                    message: '用户名验证失败',
-                    validators: {
-                        notEmpty: {
-                            message: '用户名不能为空'
-                        },
-                        stringLength: {
-                            min: 4,
-                            message: '用户名长度必须大于4个字符'
-                        },
-                    }
-                },
-                identity: {
-                    validators: {
-                        notEmpty: {
-                            message: '身份证号码不能为空'
-                        },
-                        callback: {
-                            message: '身份证号码格式错误',
-                            callback: function (value, validator) {
-                                if (!value) {
-                                    return true
-                                } else if (isCardNo(value)) {
-                                    return true;
-                                } else {
-                                    return false;
-                                }
-                            }
-                        }
-                    }
-                },
-                tel: {
-                    validators: {
-                        notEmpty: {
-                            message: '手机号不能为空'
-                        },
-                        regexp: {
-                            regexp: /^1\d{10}$/,
-                            message: '手机号格式错误'
-                        }
-                    }
-                }
-            }
-        });
-
-        var bootstrapValidator = $('form').data('bootstrapValidator');
-
-        // 提交时验证
-        $('#submit').on('click', function () {
-            bootstrapValidator.validate();
-            if (bootstrapValidator.isValid()) {
-                //表单提交的方法、比如ajax提交
-                alert('success');
-            }
-        })
-
-        // 重置表单
-        $('#reset').on('click', function () {
-            bootstrapValidator.resetForm();
-            $('input').val('')
-        })
-
-        // 验证身份证号
-        function isCardNo(card) {
-            let reg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
-            if (reg.test(card) === false) {
-                return false
-            } else {
-                return true
-            }
-        }
-
-        // 验证手机号
-        function checkMobile(str) {
-            let re = /^1\d{10}$/
-            if (re.test(str)) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-    </script>   
+    <script src="https://cdn.bootcdn.net/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.zh-CN.min.js"></script>
+    @*<script src="https://cdn.bootcss.com/moment.js/2.24.0/moment-with-locales.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js" integrity="sha512-GDey37RZAxFkpFeJorEUwNoIbkTwsyC736KNSYucu1WJWFK9qTdzYub8ATxktr6Dwke7nbFaioypzbDOQykoRg==" crossorigin="anonymous"></script>*@
+    @Scripts.Render("~/bundles/signup")
 </body>
 
 </html>

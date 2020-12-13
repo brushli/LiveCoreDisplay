@@ -1,4 +1,5 @@
-﻿using LiveCodeDisplayA.Models;
+﻿using BJ.LiveCodeDisplay.Web.Common;
+using BJ.LiveCodeDisplay.Web.Models;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -11,14 +12,20 @@ using System.Text;
 using System.Web;
 using System.Web.Mvc;
 
-namespace LiveCodeDisplayA.Controllers
+namespace BJ.LiveCodeDisplay.Web.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly string GetWeChatUserInfoUrl = "http://localhost:5000/api/WeChat/GetWeChatUserInfo";
-        private readonly string ScanCodeUrl = "http://localhost:5000/api/services/app/QrCodeActivitys/ScanCode";
-        private readonly string LongPressUrl = "http://localhost:5000/api/services/app/QrCodeActivityInnerCode/LongPress";
+        //private readonly static string BaseUrl = "http://localhost:5000/";
+        private readonly static string BaseUrl = "http://106.15.72.245:5013/";
+        private readonly string GetWeChatUserInfoUrl = BaseUrl+"api/WeChat/GetWeChatUserInfo";
+        private readonly string ScanCodeUrl = BaseUrl + "api/services/app/QrCodeActivitys/ScanCode";
+        private readonly string LongPressUrl = BaseUrl + "api/services/app/QrCodeActivityInnerCode/LongPress";
+        private readonly string CommitSignUpUrl = BaseUrl + "api/services/app/QrCodeActivityRegister/Create";
+        private readonly string SendMsgUrl = BaseUrl + "api/services/app/SmsMessageService/SendSignUpCode";
+        private readonly string GetGrade = BaseUrl + "api/services/app/Grade/GetAll";
         private readonly string OpenIdCookiesKey = "jzlm_openid";
+        private readonly string WeChatRedirectUrl = "http://xsx.hrtechsh.com/";
         /// <summary>
         /// 扫码
         /// </summary>
@@ -41,7 +48,7 @@ namespace LiveCodeDisplayA.Controllers
             ViewBag.ownerUserId = ownerUserId;
             ViewBag.publicityId = publicityId;
             var openId = Request.Cookies[OpenIdCookiesKey];
-            openId = new HttpCookie("OpenIdCookiesKey", "bbbb");
+            //openId = new HttpCookie("OpenIdCookiesKey", "bbbb");
             if (openId != null)
             {
                 ViewBag.openid = openId.Value;
@@ -94,7 +101,7 @@ namespace LiveCodeDisplayA.Controllers
                 }
                 catch (Exception)
                 {
-                    var redirect_uri = "http://ysy.hrtechsh.com/?" + "activityId=" + activityId + "&userId=" + userId + "&ownerUserId=" + ownerUserId + "&publicityId=" + publicityId;
+                    var redirect_uri = WeChatRedirectUrl + "activityId=" + activityId + "&userId=" + userId + "&ownerUserId=" + ownerUserId + "&publicityId=" + publicityId;
                     redirect_uri = HttpUtility.UrlEncode(redirect_uri);
                     //引导页面，用ss来获取openid
                     var wecharUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxfb0c4f305db81aa6&redirect_uri=" + redirect_uri + "&response_type=code&scope=snsapi_base&state=scancode#wechat_redirect";
@@ -103,7 +110,7 @@ namespace LiveCodeDisplayA.Controllers
             }
             else
             {
-                var redirect_uri = "http://ysy.hrtechsh.com/?" + "activityId=" + activityId + "&userId=" + userId + "&ownerUserId=" + ownerUserId + "&publicityId=" + publicityId;
+                var redirect_uri = WeChatRedirectUrl + "activityId=" + activityId + "&userId=" + userId + "&ownerUserId=" + ownerUserId + "&publicityId=" + publicityId;
                 redirect_uri = HttpUtility.UrlEncode(redirect_uri);
                 //引导页面，用ss来获取openid
                 var wecharUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxfb0c4f305db81aa6&redirect_uri=" + redirect_uri + "&response_type=code&scope=snsapi_base&state=scancode#wechat_redirect";
@@ -145,10 +152,10 @@ namespace LiveCodeDisplayA.Controllers
         /// <returns></returns>
         public ActionResult SignUp(QrCodeActivitys input)
         {
-            //ViewBag.ss = "http://qrcodes-mskb.oss-cn-shanghai.aliyuncs.com/%E7%BE%A4%E7%A0%81/%E6%95%88%E6%9E%9C%E5%9B%BE/eb20243d-65ad-4e70-9cf2-04de8bdd179b.jpg";
-            if (!string.IsNullOrEmpty(input.RegiterItemClass)&&!string.IsNullOrWhiteSpace(input.RegiterItemClass))
+            ViewBag.activityId = input.Id;
+            /*if (!string.IsNullOrEmpty(input.RegiterItemClass)&&!string.IsNullOrWhiteSpace(input.RegiterItemClass))
             {
-                string html = "<form role=\"form\" action=\"Home\\SignUpCommit\" method=\"post\" autocomplete=\"off\">";
+                string html = $"<form role=\"form\" id='signUpForm' action=\"{Url.Action("SignUpCommit")}\" method=\"post\" autocomplete=\"off\">";
                 html += "<fieldset><div id=\"legend\" class=\"text-center\"><legend class=\"\">报名信息填写</legend></div>";
                 var itemClass = input.RegiterItemClass.Split(',');
                 foreach (var item in itemClass)
@@ -160,53 +167,106 @@ namespace LiveCodeDisplayA.Controllers
                         {
                             case "文本框":
                                 html += $"<div class=\"form-group\"><label for=\"{items[0]}\" class=\"col-sm-2 control-label\">{items[1]}</label>";
-                                html += $"<div class=\"col-sm-10\"><input type=\"text\" class=\"form-control\" id=\"{items[0]}\" placeholder=\"请输入{items[1]}\"></div></div>";
+                                html += $"<div class=\"col-sm-10\"><input type=\"text\" class=\"form-control\" id=\"{items[0]}\" name=\"{items[0]}\" placeholder=\"请输入{items[1]}\"></div></div>";
                                 break;
                             case "日期":
                                 html += $"<div class=\"form-group\"><label for=\"{items[0]}\" class=\"col-sm-2 control-label\">{items[1]}</label>";
-                                html += $"<div class=\"input-group from-date\"> <input type=\"text\" class=\"form-control\"/><span class=\"input-group-addon\"><span class=\"glyphicon glyphicon-calendar\"></span></span></div></div>";
+                                html += $"<div class=\"col-sm-10\"> <input type=\"text\" class=\"form-control datepicker\" id=\"{items[0]}\" name=\"{items[0]}\"/></div></div>";
                                 break;
                             case "单选框":
                                 html += $"<div class=\"form-group\"><label for=\"{items[0]}\" class=\"col-sm-2 control-label\">{items[1]}</label>";
-                                html += $"<div class=\"col-sm-10\"><input type=\"radio\" class=\"form-control\" id=\"{items[0]}\" ></div></div>";
+                                html += $"<div class=\"col-sm-10\"><input type=\"radio\" class=\"form-control\" id=\"{items[0]}\" name=\"{items[0]}\" ></div></div>";
                                 break;
                             case "手机号码":
                                 html += $"<div class=\"form-group\"><label for=\"{items[0]}\" class=\"col-sm-2 control-label\">{items[1]}</label>";
-                                html += $"<div class=\"col-sm-10\"><input type=\"text\" class=\"form-control\" id=\"{items[0]}\" placeholder=\"请输入{items[1]}\"></div></div>";
+                                html += $"<div class=\"col-sm-10\"><input type=\"text\" class=\"form-control\" id=\"{items[0]}\" name=\"{items[0]}\" placeholder=\"请输入{items[1]}\"></div></div>";
                                 break;
                             case "下拉选项":
                                 html += $"<div class=\"form-group\"><label for=\"{items[0]}\" class=\"col-sm-2 control-label\">{items[1]}</label>";
-                                html += $"<div class=\"col-sm-10\"><input type=\"text\" class=\"form-control\" id=\"{items[0]}\" placeholder=\"请输入{items[1]}\"></div></div>";
+                                html += $"<div class=\"col-sm-10\"><input type=\"text\" class=\"form-control\" id=\"{items[0]}\" name=\"{items[0]}\" placeholder=\"请输入{items[1]}\"></div></div>";
                                 break;
                             case "地址":
                                 html += $"<div class=\"form-group\"><label for=\"{items[0]}\" class=\"col-sm-2 control-label\">{items[1]}</label>";
-                                html += $"<div class=\"col-sm-10\"><input type=\"text\" class=\"form-control\" id=\"{items[0]}\" placeholder=\"请输入{items[1]}\"></div></div>";
+                                html += $"<div class=\"col-sm-10\"><input type=\"text\" class=\"form-control\" id=\"{items[0]}\" name=\"{items[0]}\" placeholder=\"请输入{items[1]}\"></div></div>";
                                 break;
                             case "邮箱":
                                 html += $"<div class=\"form-group\"><label for=\"{items[0]}\" class=\"col-sm-2 control-label\">{items[1]}</label>";
-                                html += $"<div class=\"col-sm-10\"><input type=\"text\" class=\"form-control\" id=\"{items[0]}\" placeholder=\"请输入{items[1]}\"></div></div>";
+                                html += $"<div class=\"col-sm-10\"><input type=\"text\" class=\"form-control\" id=\"{items[0]}\" name=\"{items[0]}\" placeholder=\"请输入{items[1]}\"></div></div>";
                                 break;
                             case "身份证号码":
                                 html += $"<div class=\"form-group\"><label for=\"{items[0]}\" class=\"col-sm-2 control-label\">{items[1]}</label>";
-                                html += $"<div class=\"col-sm-10\"><input type=\"text\" class=\"form-control\" id=\"{items[0]}\" placeholder=\"请输入{items[1]}\"></div></div>";
+                                html += $"<div class=\"col-sm-10\"><input type=\"text\" class=\"form-control\" id=\"{items[0]}\" name=\"{items[0]}\" placeholder=\"请输入{items[1]}\"></div></div>";
                                 break;
                             default:
                                 break;
                         }
                     }
                 }
-                html += "<div class=\"form-group text-center\"><button type=\"button\" id=\"submit\" name=\"submit\" class=\"btn btn-primary\">报名</button><div></fieldset></form>";
+                html += "<div class=\"form-group text-center\"><button type=\"button\" id=\"submitBtn\" name=\"submit\" class=\"btn btn-primary\">报名</button><div></fieldset></form>";
                 ViewBag.ContentHtml = html;
-            }
-            return View("SignUp");
+            }*/
+            return View("SignUp", input);
         }
         /// <summary>
         /// 报名提交
         /// </summary>
         /// <returns></returns>
-        public JsonResult SignUpCommit() 
+        [HttpPost]
+        public JsonResult SignUpCommit(QrCodeActivityRegister input) 
         {
-            return Json(new { success = false });
+            try
+            {
+                //获取信息
+                var requestJson = JsonConvert.SerializeObject(input);
+                var responseJson = HttpClientHelper.Post(CommitSignUpUrl, requestJson);
+                //转换为json对象
+                AbpResult<QrCodeActivityRegister> abpResult = JsonConvert.DeserializeObject<AbpResult<QrCodeActivityRegister>>(responseJson);
+                if (abpResult != null && abpResult.result != null && abpResult.result.Id > 0)
+                {
+                    return Json(new { success = true }, JsonRequestBehavior.AllowGet);
+                }
+                else if (!abpResult.success)
+                {
+                    return Json(new { success = false, msg = abpResult.error?.message }, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    return Json(new { success = false, msg = "报名失败，请稍后再试！" }, JsonRequestBehavior.AllowGet);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, msg = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        /// <summary>
+        /// 发送报名注册手机验证
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        public JsonResult SendSignUpSms(string mobile)
+        {
+            try
+            {
+                //获取信息
+                var requestJson = JsonConvert.SerializeObject(new {mobile});
+                var responseJson = HttpClientHelper.Post(SendMsgUrl, requestJson);
+                //转换为json对象
+                AbpResult<SendSmsResultDto> abpResult = JsonConvert.DeserializeObject<AbpResult<SendSmsResultDto>>(responseJson);
+                if (abpResult!=null&& abpResult.result!=null&&abpResult.result.Success)
+                {
+                    return Json(new { success = true }, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    return Json(new { success = false, msg = "请稍后再试！"}, JsonRequestBehavior.AllowGet);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false,msg=ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+            
         }
         /// <summary>
         /// 
@@ -231,17 +291,19 @@ namespace LiveCodeDisplayA.Controllers
                     ownerUserId,
                     publicityId,
                 });
-                var httpContent = new StringContent(requestJson);
-                httpContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-                var responseJson = httpClient.PostAsync(ScanCodeUrl, httpContent).Result.Content.ReadAsStringAsync().Result;
+                var responseJson = HttpClientHelper.Post(ScanCodeUrl, requestJson);
                 AbpResult<ScanQrCodeResult> scanCodeResult = JsonConvert.DeserializeObject<AbpResult<ScanQrCodeResult>>(responseJson);
-                if (scanCodeResult == null)
+                if (scanCodeResult != null && scanCodeResult.result != null)
+                {
+                    result = scanCodeResult.result;
+                }
+                else if (scanCodeResult == null || scanCodeResult.result == null)
                 {
                     result.IsSucess = false;
                     result.Message = $"<h1>服务器出现错误，请稍后在扫码！{responseJson}</h1>";
 
                 }
-                else if (scanCodeResult.result != null && scanCodeResult.result.InnerCode == null)
+                else if (scanCodeResult.result != null && scanCodeResult.result.InnerCode == null&&scanCodeResult.result.QrCodeActivity==null)
                 {
                     result.IsSucess = false;
                     result.Message = $"<h1>{scanCodeResult.result.Message}</h1>";
@@ -250,7 +312,6 @@ namespace LiveCodeDisplayA.Controllers
                 {
                     scanCodeResult.result.InnerCode.HeaderImg = "http://qrcodes-mskb.oss-cn-shanghai.aliyuncs.com/%E5%A4%B4%E5%83%8F.png";
                 }
-                result = scanCodeResult.result;
             }
             catch (Exception ex)
             {
@@ -271,10 +332,7 @@ namespace LiveCodeDisplayA.Controllers
             {
                 //获取信息
                 var requestJson = JsonConvert.SerializeObject(new { code, state });
-                HttpContent httpContent = new StringContent(requestJson);
-                httpContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-                var httpClient = new HttpClient();
-                var responseJson = httpClient.PostAsync(GetWeChatUserInfoUrl, httpContent).Result.Content.ReadAsStringAsync().Result;
+                var responseJson=HttpClientHelper.Post(GetWeChatUserInfoUrl, requestJson);
                 //转换为json对象
                 AbpResult<GetWeChatUserInfoResult> userInfoResponse = JsonConvert.DeserializeObject<AbpResult<GetWeChatUserInfoResult>>(responseJson);
                 if (userInfoResponse == null || userInfoResponse.result == null)

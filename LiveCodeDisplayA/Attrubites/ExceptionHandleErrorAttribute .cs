@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 
-namespace LiveCodeDisplayA.Attrubites
+namespace BJ.LiveCodeDisplay.Web.Attrubites
 {
     public class ExceptionHandleErrorAttribute: HandleErrorAttribute
     {

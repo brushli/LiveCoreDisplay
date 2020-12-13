@@ -1,8 +1,8 @@
-﻿using LiveCodeDisplayA.Attrubites;
+﻿using BJ.LiveCodeDisplay.Web.Attrubites;
 using System.Web;
 using System.Web.Mvc;
 
-namespace LiveCodeDisplayA
+namespace BJ.LiveCodeDisplay.Web
 {
     public class FilterConfig
     {

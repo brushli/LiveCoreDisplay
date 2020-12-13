@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace LiveCodeDisplayA.Models
+namespace BJ.LiveCodeDisplay.Web.Models
 {
     public class QrCodeActivitys
     {
@@ -137,5 +137,9 @@ namespace LiveCodeDisplayA.Models
         /// 报名活码实际应用样式:Code|Name|Type|HTML的格式用于快速处理页面的生成
         /// </summary>
         public string RegiterItemClass { set; get; }
+        /// <summary>
+        /// 班型,多个使用","号隔开
+        /// </summary>
+        public string ClassType { set; get; }
     }
 }

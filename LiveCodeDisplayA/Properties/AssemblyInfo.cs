@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // 有关程序集的常规信息是通过以下项进行控制的
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
-[assembly: AssemblyTitle("LiveCodeDisplayA")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("BJ.LiveCodeDisplay.Web")]
+[assembly: AssemblyDescription("Chad Li")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("LiveCodeDisplayA")]
-[assembly: AssemblyCopyright("版权所有(C)  2020")]
+[assembly: AssemblyProduct("BJ.LiveCodeDisplay.Web")]
+[assembly: AssemblyCopyright("柏槿版权所有(C)  2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
