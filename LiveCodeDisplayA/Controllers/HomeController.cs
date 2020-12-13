@@ -101,7 +101,7 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
                 }
                 catch (Exception)
                 {
-                    var redirect_uri = WeChatRedirectUrl + "activityId=" + activityId + "&userId=" + userId + "&ownerUserId=" + ownerUserId + "&publicityId=" + publicityId;
+                    var redirect_uri = WeChatRedirectUrl + "?activityId=" + activityId + "&userId=" + userId + "&ownerUserId=" + ownerUserId + "&publicityId=" + publicityId;
                     redirect_uri = HttpUtility.UrlEncode(redirect_uri);
                     //引导页面，用ss来获取openid
                     var wecharUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxfb0c4f305db81aa6&redirect_uri=" + redirect_uri + "&response_type=code&scope=snsapi_base&state=scancode#wechat_redirect";
@@ -110,7 +110,7 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
             }
             else
             {
-                var redirect_uri = WeChatRedirectUrl + "activityId=" + activityId + "&userId=" + userId + "&ownerUserId=" + ownerUserId + "&publicityId=" + publicityId;
+                var redirect_uri = WeChatRedirectUrl + "?activityId=" + activityId + "&userId=" + userId + "&ownerUserId=" + ownerUserId + "&publicityId=" + publicityId;
                 redirect_uri = HttpUtility.UrlEncode(redirect_uri);
                 //引导页面，用ss来获取openid
                 var wecharUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxfb0c4f305db81aa6&redirect_uri=" + redirect_uri + "&response_type=code&scope=snsapi_base&state=scancode#wechat_redirect";
