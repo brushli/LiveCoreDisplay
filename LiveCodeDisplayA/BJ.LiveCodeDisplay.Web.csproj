@@ -129,6 +129,8 @@
     <Compile Include="Models\AbpResult.cs" />
     <Compile Include="Models\GetWeChatUserInfoResult.cs" />
     <Compile Include="Models\GradeDto.cs" />
+    <Compile Include="Models\ListResultDto.cs" />
+    <Compile Include="Models\PagedResultDto.cs" />
     <Compile Include="Models\QrCodeActivityInnerQrCode.cs" />
     <Compile Include="Models\QrCodeActivityRegister.cs" />
     <Compile Include="Models\QrCodeActivitys.cs" />

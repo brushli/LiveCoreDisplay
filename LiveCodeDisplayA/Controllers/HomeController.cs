@@ -16,16 +16,19 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
 {
     public class HomeController : Controller
     {
-        //private readonly static string BaseUrl = "http://localhost:5000/";
-        private readonly static string BaseUrl = "http://106.15.72.245:5013/";
+        private readonly static string BaseUrl = "http://localhost:5000/";
+        //private readonly static string BaseUrl = "http://106.15.72.245:5013/";
         private readonly string GetWeChatUserInfoUrl = BaseUrl+"api/WeChat/GetWeChatUserInfo";
         private readonly string ScanCodeUrl = BaseUrl + "api/services/app/QrCodeActivitys/ScanCode";
         private readonly string LongPressUrl = BaseUrl + "api/services/app/QrCodeActivityInnerCode/LongPress";
         private readonly string CommitSignUpUrl = BaseUrl + "api/services/app/QrCodeActivityRegister/Create";
         private readonly string SendMsgUrl = BaseUrl + "api/services/app/SmsMessageService/SendSignUpCode";
-        private readonly string GetGrade = BaseUrl + "api/services/app/Grade/GetAll";
+        private readonly string GetGradeUrl = BaseUrl + "api/services/app/Grade/GetAll";
         private readonly string OpenIdCookiesKey = "jzlm_openid";
         private readonly string WeChatRedirectUrl = "http://xsx.hrtechsh.com/";
+        private readonly string WeChatAppID = "wxfb0c4f305db81aa6";  //正式APPID，
+        private static List<GradeDto> GradeDtos = new List<GradeDto>();
+        //private readonly string WeChatAppID = "wx35b54f0790ac5c22";//测试达人互助APPID
         /// <summary>
         /// 扫码
         /// </summary>
@@ -48,7 +51,7 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
             ViewBag.ownerUserId = ownerUserId;
             ViewBag.publicityId = publicityId;
             var openId = Request.Cookies[OpenIdCookiesKey];
-            //openId = new HttpCookie("OpenIdCookiesKey", "bbbb");
+            openId = new HttpCookie("OpenIdCookiesKey", "bbbb");
             if (openId != null)
             {
                 ViewBag.openid = openId.Value;
@@ -104,7 +107,7 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
                     var redirect_uri = WeChatRedirectUrl + "?activityId=" + activityId + "&userId=" + userId + "&ownerUserId=" + ownerUserId + "&publicityId=" + publicityId;
                     redirect_uri = HttpUtility.UrlEncode(redirect_uri);
                     //引导页面，用ss来获取openid
-                    var wecharUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxfb0c4f305db81aa6&redirect_uri=" + redirect_uri + "&response_type=code&scope=snsapi_base&state=scancode#wechat_redirect";
+                    var wecharUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid="+ WeChatAppID + "&redirect_uri=" + redirect_uri + "&response_type=code&scope=snsapi_base&state=scancode#wechat_redirect";
                     return Redirect(wecharUrl);
                 }
             }
@@ -113,7 +116,7 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
                 var redirect_uri = WeChatRedirectUrl + "?activityId=" + activityId + "&userId=" + userId + "&ownerUserId=" + ownerUserId + "&publicityId=" + publicityId;
                 redirect_uri = HttpUtility.UrlEncode(redirect_uri);
                 //引导页面，用ss来获取openid
-                var wecharUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxfb0c4f305db81aa6&redirect_uri=" + redirect_uri + "&response_type=code&scope=snsapi_base&state=scancode#wechat_redirect";
+                var wecharUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + WeChatAppID + "&redirect_uri=" + redirect_uri + "&response_type=code&scope=snsapi_base&state=scancode#wechat_redirect";
                 return Redirect(wecharUrl);
             }
         }
@@ -153,58 +156,89 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
         public ActionResult SignUp(QrCodeActivitys input)
         {
             ViewBag.activityId = input.Id;
-            /*if (!string.IsNullOrEmpty(input.RegiterItemClass)&&!string.IsNullOrWhiteSpace(input.RegiterItemClass))
+            if (!string.IsNullOrEmpty(input.RegiterItemClass) && !string.IsNullOrWhiteSpace(input.RegiterItemClass))
             {
                 string html = $"<form role=\"form\" id='signUpForm' action=\"{Url.Action("SignUpCommit")}\" method=\"post\" autocomplete=\"off\">";
-                html += "<fieldset><div id=\"legend\" class=\"text-center\"><legend class=\"\">报名信息填写</legend></div>";
+                html += $"<fieldset><input type=\"hidden\"  id=\"ActivityId\" name=\"ActivityId\" value=\"{input.Id}\" />";
+                html += $"<input type=\"hidden\"  id=\"userId\" name=\"userId\" value=\"{ViewBag.userId}\" />";
+                html += $"<input type=\"hidden\"  id=\"ownerUserId\" name=\"ownerUserId\" value=\"{ViewBag.ownerUserId}\" />";
+                html += $"<input type=\"hidden\"  id=\"publicityId\" name=\"publicityId\" value=\"{ViewBag.publicityId}\" />";
+                html += $"<input type=\"hidden\"  id=\"openid\" name=\"openid\" value=\"{ViewBag.openid}\" />";
+                html += "<div id=\"legend\" class=\"text-center\"><legend class=\"\">报名信息填写</legend></div>";
                 var itemClass = input.RegiterItemClass.Split(',');
+                string htmlType = "text";
+                string htmlClass = "form-control";
                 foreach (var item in itemClass)
                 {
                     var items = item.Split('|');
                     if (items.Length == 4)
                     {
+                        html += $"<div class=\"form-group\"><label for=\"{items[0]}\" class=\"col-sm-2 control-label\">{items[1]}</label>";
                         switch (items[2])
                         {
                             case "文本框":
-                                html += $"<div class=\"form-group\"><label for=\"{items[0]}\" class=\"col-sm-2 control-label\">{items[1]}</label>";
-                                html += $"<div class=\"col-sm-10\"><input type=\"text\" class=\"form-control\" id=\"{items[0]}\" name=\"{items[0]}\" placeholder=\"请输入{items[1]}\"></div></div>";
+                            case "身份证号码":
+                            case "地址":
+                                htmlClass = "form-control";
+                                htmlType = "text";
+                                html += $"<div class=\"col-sm-10\"><input type=\"{htmlType}\" class=\"{htmlClass}\" id=\"{items[0]}\" name=\"{items[0]}\"></div>";
                                 break;
                             case "日期":
-                                html += $"<div class=\"form-group\"><label for=\"{items[0]}\" class=\"col-sm-2 control-label\">{items[1]}</label>";
-                                html += $"<div class=\"col-sm-10\"> <input type=\"text\" class=\"form-control datepicker\" id=\"{items[0]}\" name=\"{items[0]}\"/></div></div>";
+                                htmlClass = "form-control datepicker";
+                                htmlType = "text";
+                                html += $"<div class=\"col-sm-10\"><input type=\"{htmlType}\" class=\"{htmlClass}\" id=\"{items[0]}\" name=\"{items[0]}\"></div>";
                                 break;
                             case "单选框":
-                                html += $"<div class=\"form-group\"><label for=\"{items[0]}\" class=\"col-sm-2 control-label\">{items[1]}</label>";
-                                html += $"<div class=\"col-sm-10\"><input type=\"radio\" class=\"form-control\" id=\"{items[0]}\" name=\"{items[0]}\" ></div></div>";
-                                break;
-                            case "手机号码":
-                                html += $"<div class=\"form-group\"><label for=\"{items[0]}\" class=\"col-sm-2 control-label\">{items[1]}</label>";
-                                html += $"<div class=\"col-sm-10\"><input type=\"text\" class=\"form-control\" id=\"{items[0]}\" name=\"{items[0]}\" placeholder=\"请输入{items[1]}\"></div></div>";
+                                htmlType = "radio";
+                                htmlClass = "form-control";
+                                html += $"<div class=\"col-sm-10\"><input type=\"{htmlType}\" class=\"{htmlClass}\" id=\"{items[0]}\" name=\"{items[0]}\"></div>";
                                 break;
                             case "下拉选项":
-                                html += $"<div class=\"form-group\"><label for=\"{items[0]}\" class=\"col-sm-2 control-label\">{items[1]}</label>";
-                                html += $"<div class=\"col-sm-10\"><input type=\"text\" class=\"form-control\" id=\"{items[0]}\" name=\"{items[0]}\" placeholder=\"请输入{items[1]}\"></div></div>";
+                                html += $"<div class=\"col-sm-10\">  <select class=\"form-control\" id=\"{items[0]}\" name=\"{items[0]}\">";
+                                if (items[1] == "班型" && !string.IsNullOrEmpty(input.ClassType))
+                                {
+                                    var classType = input.ClassType.Split(',');
+                                 
+                                    foreach (var classTy in classType)
+                                    {
+                                        html += $"<option value=\"{classTy}\">{classTy}</option>";
+                                    }
+                                }
+                                else if(items[1] == "年级")
+                                {
+                                    GetGradeAll();
+                                    foreach (var grade in GradeDtos)
+                                    {
+                                        html += $"<option value=\"{grade.Name}\">{grade.Name}</option>";
+                                    }
+                                }
+                                html += "</select></div>";
                                 break;
-                            case "地址":
-                                html += $"<div class=\"form-group\"><label for=\"{items[0]}\" class=\"col-sm-2 control-label\">{items[1]}</label>";
-                                html += $"<div class=\"col-sm-10\"><input type=\"text\" class=\"form-control\" id=\"{items[0]}\" name=\"{items[0]}\" placeholder=\"请输入{items[1]}\"></div></div>";
-                                break;
-                            case "邮箱":
-                                html += $"<div class=\"form-group\"><label for=\"{items[0]}\" class=\"col-sm-2 control-label\">{items[1]}</label>";
-                                html += $"<div class=\"col-sm-10\"><input type=\"text\" class=\"form-control\" id=\"{items[0]}\" name=\"{items[0]}\" placeholder=\"请输入{items[1]}\"></div></div>";
-                                break;
-                            case "身份证号码":
-                                html += $"<div class=\"form-group\"><label for=\"{items[0]}\" class=\"col-sm-2 control-label\">{items[1]}</label>";
-                                html += $"<div class=\"col-sm-10\"><input type=\"text\" class=\"form-control\" id=\"{items[0]}\" name=\"{items[0]}\" placeholder=\"请输入{items[1]}\"></div></div>";
+                            case "手机号码":
+                                htmlType = "text";
+                                htmlClass = "form-control";
+                                html += $"<div class=\"col-sm-10\"><input type=\"{htmlType}\" class=\"{htmlClass}\" id=\"{items[0]}\" name=\"{items[0]}\"></div>";
+                                html += "</div>";
+                                if (input.PhoneNumberNeedsVilidation.HasValue&& input.PhoneNumberNeedsVilidation.Value)
+                                {
+                                    html+= " <div class=\"input-group\"><div class=\"col-sm-10 top-left\"><input class=\"btn btn-info\" type=\"button\" id=\"getcode\" value=\"点击获取手机验证码\" /><span id = \"telephonenameTip\" ></span></div></div>";
+                                    htmlType = "text";
+                                    htmlClass = "form-control";
+                                    html += $"<div class=\"form-group\"><label for=\"SmsCode\" class=\"col-sm-2 control-label\">验证码</label>";
+                                    html += $"<div class=\"col-sm-10\"><input type=\"{htmlType}\" class=\"{htmlClass}\" id=\"SmsCode\" name=\"SmsCode\"></div>";
+                                }
                                 break;
                             default:
+                                htmlType = "text";
+                                htmlClass = "form-control";
                                 break;
                         }
+                        html += "</div>";
                     }
                 }
-                html += "<div class=\"form-group text-center\"><button type=\"button\" id=\"submitBtn\" name=\"submit\" class=\"btn btn-primary\">报名</button><div></fieldset></form>";
+                html += "<div class=\"form-group text-center\"><button type=\"button\" id=\"submitBtn\" name=\"submit\" class=\"btn btn-primary\"> <span class=\"glyphicon glyphicon-floppy-disk\" aria-hidden=\"true\"></span>报名</button><div></fieldset></form>";
                 ViewBag.ContentHtml = html;
-            }*/
+            }
             return View("SignUp", input);
         }
         /// <summary>
@@ -349,6 +383,28 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
                 return null;
             }
             
+        }
+        /// <summary>
+        /// 获取年级
+        /// </summary>
+        private void GetGradeAll()
+        {
+            try
+            {
+                if (GradeDtos.Count==0)
+                {
+                    //获取信息
+                    //var requestJson = JsonConvert.SerializeObject(new { SkipCount=0, MaxResultCount=int.MaxValue });
+                    var responseJson = HttpClientHelper.Get(GetGradeUrl, $"SkipCount=0&MaxResultCount={int.MaxValue}");
+                    //转换为json对象
+                    AbpResult<PagedResultDto<GradeDto>> gradeResponse = JsonConvert.DeserializeObject<AbpResult<PagedResultDto<GradeDto>>>(responseJson);
+                    GradeDtos = gradeResponse.result.Items.ToList();
+                }
+            }
+            catch (Exception)
+            {
+                return;
+            }
         }
     }
 }

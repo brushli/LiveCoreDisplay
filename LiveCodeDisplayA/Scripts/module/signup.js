@@ -35,7 +35,7 @@ $('form').bootstrapValidator({
             message: '验证码格式错误',
             validators: {
                 notEmpty: {
-                    message: '用户名不能为空'
+                    message: '验证码不能为空'
                 },
                 stringLength: {
                     min: 6,
@@ -45,14 +45,14 @@ $('form').bootstrapValidator({
             }
         },
         Grade: {
-            message: '用户名验证失败',
+            message: '年级验证失败',
             validators: {
                 notEmpty: {
-                    message: '用户名不能为空'
+                    message: '年级不能为空'
                 }
             }
         },
-        /*identity: {
+        IDCard: {
             validators: {
                 notEmpty: {
                     message: '身份证号码不能为空'
@@ -70,7 +70,7 @@ $('form').bootstrapValidator({
                     }
                 }
             }
-        },*/
+        },
         Phone: {
             validators: {
                 notEmpty: {

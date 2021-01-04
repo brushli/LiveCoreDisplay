@@ -36,5 +36,19 @@ namespace BJ.LiveCodeDisplay.Web.Common
             var responseContent = response.Content.ReadAsStringAsync().Result;
             return responseContent;
         }
+        /// <summary>
+        /// Get请求
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="inputJson"></param>
+        /// <returns></returns>
+        public static string Get(string url, string param)
+        {
+            var httpClient = new HttpClient();
+            httpClient.Timeout = Timeout;
+            var response = httpClient.GetAsync(url+"?"+ param).Result;
+            var responseContent = response.Content.ReadAsStringAsync().Result;
+            return responseContent;
+        }
     }
 }
