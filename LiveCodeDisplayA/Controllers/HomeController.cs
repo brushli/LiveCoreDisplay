@@ -16,8 +16,8 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly static string BaseUrl = "http://localhost:5000/";
-        //private readonly static string BaseUrl = "http://106.15.72.245:5013/";
+        //private readonly static string BaseUrl = "http://localhost:5000/";
+        private readonly static string BaseUrl = "http://106.15.72.245:5013/";
         private readonly string GetWeChatUserInfoUrl = BaseUrl+"api/WeChat/GetWeChatUserInfo";
         private readonly string ScanCodeUrl = BaseUrl + "api/services/app/QrCodeActivitys/ScanCode";
         private readonly string LongPressUrl = BaseUrl + "api/services/app/QrCodeActivityInnerCode/LongPress";
@@ -26,9 +26,9 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
         private readonly string GetGradeUrl = BaseUrl + "api/services/app/Grade/GetAll";
         private readonly string OpenIdCookiesKey = "jzlm_openid";
         private readonly string WeChatRedirectUrl = "http://xsx.hrtechsh.com/";
-        private readonly string WeChatAppID = "wxfb0c4f305db81aa6";  //正式APPID，
+        //private readonly string WeChatAppID = "wxfb0c4f305db81aa6";  //正式APPID，
         private static List<GradeDto> GradeDtos = new List<GradeDto>();
-        //private readonly string WeChatAppID = "wx35b54f0790ac5c22";//测试达人互助APPID
+        private readonly string WeChatAppID = "wx35f415251fc1aedd";//测试达人互助APPID
         /// <summary>
         /// 扫码
         /// </summary>
@@ -51,7 +51,7 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
             ViewBag.ownerUserId = ownerUserId;
             ViewBag.publicityId = publicityId;
             var openId = Request.Cookies[OpenIdCookiesKey];
-            openId = new HttpCookie("OpenIdCookiesKey", "bbbb");
+            //openId = new HttpCookie("OpenIdCookiesKey", "bbbb");
             if (openId != null)
             {
                 ViewBag.openid = openId.Value;
@@ -164,6 +164,9 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
                 html += $"<input type=\"hidden\"  id=\"ownerUserId\" name=\"ownerUserId\" value=\"{ViewBag.ownerUserId}\" />";
                 html += $"<input type=\"hidden\"  id=\"publicityId\" name=\"publicityId\" value=\"{ViewBag.publicityId}\" />";
                 html += $"<input type=\"hidden\"  id=\"openid\" name=\"openid\" value=\"{ViewBag.openid}\" />";
+                html += $"<input type=\"hidden\"  id=\"openid\" name=\"openid\" value=\"{ViewBag.openid}\" />";
+                html += $"<input type=\"hidden\"  id=\"RegistrationUserId\" name=\"RegistrationUserId\" value=\"{input.RegistrationUserId}\" />";
+                html += $"<input type=\"hidden\"  id=\"RegistrationUserName\" name=\"RegistrationUserName\" value=\"{input.RegistrationUserName}\" />";
                 html += "<div id=\"legend\" class=\"text-center\"><legend class=\"\">报名信息填写</legend></div>";
                 var itemClass = input.RegiterItemClass.Split(',');
                 string htmlType = "text";
@@ -179,6 +182,7 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
                             case "文本框":
                             case "身份证号码":
                             case "地址":
+                            case "邮箱":
                                 htmlClass = "form-control";
                                 htmlType = "text";
                                 html += $"<div class=\"col-sm-10\"><input type=\"{htmlType}\" class=\"{htmlClass}\" id=\"{items[0]}\" name=\"{items[0]}\"></div>";
@@ -195,7 +199,7 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
                                 break;
                             case "下拉选项":
                                 html += $"<div class=\"col-sm-10\">  <select class=\"form-control\" id=\"{items[0]}\" name=\"{items[0]}\">";
-                                if (items[1] == "班型" && !string.IsNullOrEmpty(input.ClassType))
+                                if (items[1] == "选择班型" && !string.IsNullOrEmpty(input.ClassType))
                                 {
                                     var classType = input.ClassType.Split(',');
                                  
