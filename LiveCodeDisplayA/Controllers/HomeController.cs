@@ -167,7 +167,7 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
                 html += $"<input type=\"hidden\"  id=\"openid\" name=\"openid\" value=\"{ViewBag.openid}\" />";
                 html += $"<input type=\"hidden\"  id=\"RegistrationUserId\" name=\"RegistrationUserId\" value=\"{input.RegistrationUserId}\" />";
                 html += $"<input type=\"hidden\"  id=\"RegistrationUserName\" name=\"RegistrationUserName\" value=\"{input.RegistrationUserName}\" />";
-                html += "<div id=\"legend\" class=\"text-center\"><legend class=\"\">报名信息填写</legend></div>";
+                html += $"<div id=\"legend\" class=\"text-center\"><legend class=\"\">{input.Name}</legend></div>";
                 var itemClass = input.RegiterItemClass.Split(',');
                 string htmlType = "text";
                 string htmlClass = "form-control";
@@ -181,11 +181,13 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
                         {
                             case "文本框":
                             case "身份证号码":
-                            case "地址":
                             case "邮箱":
                                 htmlClass = "form-control";
                                 htmlType = "text";
                                 html += $"<div class=\"col-sm-10\"><input type=\"{htmlType}\" class=\"{htmlClass}\" id=\"{items[0]}\" name=\"{items[0]}\"></div>";
+                                break;
+                            case "地址":
+                                html += "<div ><div id=\"distpicker\" ><div class=\"form-group\"><div style=\"position: relative; \"><input id=\"city-picker3\" class=\"form-control\" readonly type=\"text\"  name='RangeAddress' Id='RangeAddress' data-toggle=\"city-picker\"></div></div></div></div>";
                                 break;
                             case "日期":
                                 htmlClass = "form-control datepicker";

@@ -59,12 +59,16 @@
                 return false;
             }
         })
-    });
+    });   
     function longPress() {
-        timeOutEvent = 0;
+        @if (Model.IsScanCustomServiceQrCode) 
+        {
+            return;
+        }
+        timeOutEvent = 0;        
         $.ajax({
-            type: "POST",//FromMethod
-            url: "/Home/LongPress",//"/Controller/Action"，记住这里前面一定记得要有"/".
+            type: "POST",
+            url: "/Home/LongPress",
             data: {
                 openId: openid,
                 userId: userId,
@@ -77,8 +81,8 @@
 
             },
             error: function (err) {//请求错误后执行的方法
-                alert(err)
+                    alert(err)
             }
         });
-    }
+     }
 </script>

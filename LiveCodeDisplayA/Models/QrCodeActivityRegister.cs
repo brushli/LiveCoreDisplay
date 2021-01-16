@@ -48,5 +48,25 @@ namespace BJ.LiveCodeDisplay.Web.Models
         /// 短信验证码
         /// </summary>
         public string SmsCode { set; get; }
+        /// <summary>
+        /// 选择地址,使用省/市/区县进行格式传递
+        /// </summary>
+        public string RangeAddress
+        {
+            set
+            {
+                if (!string.IsNullOrEmpty(value))
+                {
+                    var splitDress = value.Split('/');
+                    Province = splitDress.Length >= 1 ? splitDress[0]:string.Empty;
+                    City = splitDress.Length >= 2 ? splitDress[1] : string.Empty;
+                    Area = splitDress.Length >= 3 ? splitDress[2] : string.Empty;
+                }
+            }
+            get
+            {
+                return $"{Province}/{City}/{Area}";
+            }
+        }
     }
 }

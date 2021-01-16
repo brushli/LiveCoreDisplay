@@ -28,5 +28,9 @@ namespace BJ.LiveCodeDisplay.Web.Models
         /// </summary>
         public QrCodeActivityInnerQrCode InnerCode { set; get; }
         public QrCodeActivitys QrCodeActivity { set; get; }
+        /// <summary>
+        /// 是否是扫过的客服码
+        /// </summary>
+        public bool IsScanCustomServiceQrCode { set; get; }
     }
 }
