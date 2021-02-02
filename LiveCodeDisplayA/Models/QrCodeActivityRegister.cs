@@ -68,5 +68,13 @@ namespace BJ.LiveCodeDisplay.Web.Models
                 return $"{Province}/{City}/{Area}";
             }
         }
+        /// <summary>
+        /// 报名后是否跳转到客服码
+        /// </summary>
+        public bool? JumpToCustomService { set; get; }
+        /// <summary>
+        /// 客服码的链接，用于报名活码扫码后的跳转
+        /// </summary>
+        public string CustomServiceUrl { set; get; }
     }
 }

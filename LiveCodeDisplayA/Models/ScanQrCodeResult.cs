@@ -32,5 +32,9 @@ namespace BJ.LiveCodeDisplay.Web.Models
         /// 是否是扫过的客服码
         /// </summary>
         public bool IsScanCustomServiceQrCode { set; get; }
+        /// <summary>
+        /// 客服码的链接，用于报名活码扫码后的跳转
+        /// </summary>
+        public string CustomServiceUrl { set; get; }
     }
 }

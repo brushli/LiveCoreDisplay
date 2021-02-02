@@ -9,7 +9,7 @@ $(".datepicker").datepicker({
     autoclose: true,//选中之后自动隐藏日期选择框
     clearBtn: true,//清除按钮
     todayBtn: 'linked',//今日按钮
-    format: "yyyy-mm-dd"//日期格式，详见 http://bootstrap-datepicker.readthedocs.org/en/release/options.html#format
+    format: "yyyy-mm-dd"//日期格式，详见 
 });
 $('form').bootstrapValidator({
     message: '填写的值无效！',
@@ -20,14 +20,14 @@ $('form').bootstrapValidator({
     },
     fields: {
         Name: {
-            message: '用户名验证失败',
+            message: '中文姓名验证失败',
             validators: {
                 notEmpty: {
-                    message: '用户名不能为空'
+                    message: '中文姓名不能为空'
                 },
                 stringLength: {
                     min: 2,
-                    message: '用户名长度必须大于2个字符'
+                    message: '中文姓名长度必须大于2个字符'
                 },
             }
         },
@@ -106,12 +106,14 @@ $('#submitBtn').on('click', function () {
                 if (result.success) {
                     signupIsCommit = true;
                     alert("报名成功！");
-                    curCount = 0;
+                    if (result.JumpToCustomService && result.CustomServiceUrl.length>0) {
+                        window.location.replace(result.CustomServiceUrl);
+                    }
                 }
                 else {
                     alert(result.msg)
-                    curCount = 0;
                 }
+                curCount = 0;
             },
             error: function () {
                 alert("报名失败，请稍后再试！！");

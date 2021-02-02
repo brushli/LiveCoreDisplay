@@ -3,6 +3,7 @@ using BJ.LiveCodeDisplay.Web.Models;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -16,19 +17,17 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
 {
     public class HomeController : Controller
     {
-        //private readonly static string BaseUrl = "http://localhost:5000/";
-        private readonly static string BaseUrl = "http://106.15.72.245:5013/";
-        private readonly string GetWeChatUserInfoUrl = BaseUrl+"api/WeChat/GetWeChatUserInfo";
+        private readonly static string BaseUrl = ConfigurationManager.AppSettings["BaseUrl"];
+        private readonly string GetWeChatUserInfoUrl = BaseUrl + "api/WeChat/GetWeChatUserInfo";
         private readonly string ScanCodeUrl = BaseUrl + "api/services/app/QrCodeActivitys/ScanCode";
         private readonly string LongPressUrl = BaseUrl + "api/services/app/QrCodeActivityInnerCode/LongPress";
         private readonly string CommitSignUpUrl = BaseUrl + "api/services/app/QrCodeActivityRegister/Create";
         private readonly string SendMsgUrl = BaseUrl + "api/services/app/SmsMessageService/SendSignUpCode";
         private readonly string GetGradeUrl = BaseUrl + "api/services/app/Grade/GetAll";
         private readonly string OpenIdCookiesKey = "jzlm_openid";
-        private readonly string WeChatRedirectUrl = "http://xsx.hrtechsh.com/";
-        //private readonly string WeChatAppID = "wxfb0c4f305db81aa6";  //正式APPID，
+        private readonly string WeChatRedirectUrl = ConfigurationManager.AppSettings["WeChatRedirectUrl"];
         private static List<GradeDto> GradeDtos = new List<GradeDto>();
-        private readonly string WeChatAppID = "wx35f415251fc1aedd";//测试达人互助APPID
+        private readonly string WeChatAppID = ConfigurationManager.AppSettings["WeChatAppID"];
         /// <summary>
         /// 扫码
         /// </summary>
@@ -41,7 +40,7 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
         /// <returns></returns>
         public ActionResult Index(string activityId, string userId, string ownerUserId, string publicityId, string code, string state)
         {
-            if (string.IsNullOrEmpty(activityId)||string.IsNullOrWhiteSpace(activityId))
+            if (string.IsNullOrEmpty(activityId) || string.IsNullOrWhiteSpace(activityId))
             {
                 return Content("<h1>无效的扫码！</h1>");
             }
@@ -51,25 +50,10 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
             ViewBag.ownerUserId = ownerUserId;
             ViewBag.publicityId = publicityId;
             var openId = Request.Cookies[OpenIdCookiesKey];
-            //openId = new HttpCookie("OpenIdCookiesKey", "bbbb");
             if (openId != null)
             {
                 ViewBag.openid = openId.Value;
-                var scanCodeResult = ScanCode(openId.Value, activityId, userId, ownerUserId, publicityId);
-                //报名的活码
-                if (scanCodeResult.QrCodeActivity!=null&& scanCodeResult.QrCodeActivity.QrType== "报名")
-                {
-                    return SignUp(scanCodeResult.QrCodeActivity);
-                }
-                if (scanCodeResult.IsSucess && scanCodeResult.InnerCode != null)
-                {
-                    ViewBag.innerCodeId = scanCodeResult.InnerCode.Id;
-                }
-                else
-                {
-                    return Content(scanCodeResult.Message);
-                }
-                return View(scanCodeResult);
+                return ScanCodeGetView(activityId, userId, ownerUserId, publicityId, openId.Value);
             }
             else if (!string.IsNullOrEmpty(code))
             {
@@ -86,28 +70,14 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
                         Expires = DateTime.Now.AddDays(2000)
                     });
                     ViewBag.openid = weChatUserInfo.openid;
-                    var scanCodeResult = ScanCode(weChatUserInfo.openid, activityId, userId, ownerUserId, publicityId);
-                    //报名的活码
-                    if (scanCodeResult.QrCodeActivity != null && scanCodeResult.QrCodeActivity.QrType == "报名")
-                    {
-                        return SignUp(scanCodeResult.QrCodeActivity);
-                    }
-                    if (scanCodeResult.IsSucess && scanCodeResult.InnerCode != null)
-                    {
-                        ViewBag.innerCodeId = scanCodeResult.InnerCode.Id;
-                    }
-                    else
-                    {
-                        return Content(scanCodeResult.Message);
-                    }
-                    return View(scanCodeResult);
+                    return ScanCodeGetView(activityId, userId, ownerUserId, publicityId, weChatUserInfo.openid);
                 }
                 catch (Exception)
                 {
                     var redirect_uri = WeChatRedirectUrl + "?activityId=" + activityId + "&userId=" + userId + "&ownerUserId=" + ownerUserId + "&publicityId=" + publicityId;
                     redirect_uri = HttpUtility.UrlEncode(redirect_uri);
                     //引导页面，用ss来获取openid
-                    var wecharUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid="+ WeChatAppID + "&redirect_uri=" + redirect_uri + "&response_type=code&scope=snsapi_base&state=scancode#wechat_redirect";
+                    var wecharUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + WeChatAppID + "&redirect_uri=" + redirect_uri + "&response_type=code&scope=snsapi_base&state=scancode#wechat_redirect";
                     return Redirect(wecharUrl);
                 }
             }
@@ -120,6 +90,34 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
                 return Redirect(wecharUrl);
             }
         }
+        /// <summary>
+        /// 扫码并返回需要查看的视图
+        /// </summary>
+        /// <param name="activityId"></param>
+        /// <param name="userId"></param>
+        /// <param name="ownerUserId"></param>
+        /// <param name="publicityId"></param>
+        /// <param name="openId"></param>
+        /// <returns></returns>
+        private ActionResult ScanCodeGetView(string activityId, string userId, string ownerUserId, string publicityId, string openId)
+        {
+            var scanCodeResult = ScanCode(openId, activityId, userId, ownerUserId, publicityId);
+            //报名的活码
+            if (scanCodeResult.IsSucess && scanCodeResult.QrCodeActivity != null && scanCodeResult.QrCodeActivity.QrType == "报名")
+            {
+                return SignUp(scanCodeResult);
+            }
+            else if (scanCodeResult.IsSucess && scanCodeResult.InnerCode != null)
+            {
+                ViewBag.innerCodeId = scanCodeResult.InnerCode.Id;
+                return View("Index", scanCodeResult);
+            }
+            else
+            {
+                return Content(scanCodeResult.Message);
+            }
+        }
+
         /// <summary>
         /// 长按二维码
         /// </summary>
@@ -153,8 +151,9 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        public ActionResult SignUp(QrCodeActivitys input)
+        public ActionResult SignUp(ScanQrCodeResult scanQrCodeResult)
         {
+            var input = scanQrCodeResult.QrCodeActivity;
             ViewBag.activityId = input.Id;
             if (!string.IsNullOrEmpty(input.RegiterItemClass) && !string.IsNullOrWhiteSpace(input.RegiterItemClass))
             {
@@ -163,7 +162,8 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
                 html += $"<input type=\"hidden\"  id=\"userId\" name=\"userId\" value=\"{ViewBag.userId}\" />";
                 html += $"<input type=\"hidden\"  id=\"ownerUserId\" name=\"ownerUserId\" value=\"{ViewBag.ownerUserId}\" />";
                 html += $"<input type=\"hidden\"  id=\"publicityId\" name=\"publicityId\" value=\"{ViewBag.publicityId}\" />";
-                html += $"<input type=\"hidden\"  id=\"openid\" name=\"openid\" value=\"{ViewBag.openid}\" />";
+                html += $"<input type=\"hidden\"  id=\"JumpToCustomService\" name=\"JumpToCustomService\" value=\"{input.JumpToCustomService}\" />";
+                html += $"<input type=\"hidden\"  id=\"CustomServiceUrl\" name=\"CustomServiceUrl\" value=\"{scanQrCodeResult.CustomServiceUrl}\" />";
                 html += $"<input type=\"hidden\"  id=\"openid\" name=\"openid\" value=\"{ViewBag.openid}\" />";
                 html += $"<input type=\"hidden\"  id=\"RegistrationUserId\" name=\"RegistrationUserId\" value=\"{input.RegistrationUserId}\" />";
                 html += $"<input type=\"hidden\"  id=\"RegistrationUserName\" name=\"RegistrationUserName\" value=\"{input.RegistrationUserName}\" />";
@@ -204,13 +204,13 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
                                 if (items[1] == "选择班型" && !string.IsNullOrEmpty(input.ClassType))
                                 {
                                     var classType = input.ClassType.Split(',');
-                                 
+
                                     foreach (var classTy in classType)
                                     {
                                         html += $"<option value=\"{classTy}\">{classTy}</option>";
                                     }
                                 }
-                                else if(items[1] == "年级")
+                                else if (items[1] == "年级")
                                 {
                                     GetGradeAll();
                                     foreach (var grade in GradeDtos)
@@ -225,9 +225,9 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
                                 htmlClass = "form-control";
                                 html += $"<div class=\"col-sm-10\"><input type=\"{htmlType}\" class=\"{htmlClass}\" id=\"{items[0]}\" name=\"{items[0]}\"></div>";
                                 html += "</div>";
-                                if (input.PhoneNumberNeedsVilidation.HasValue&& input.PhoneNumberNeedsVilidation.Value)
+                                if (input.PhoneNumberNeedsVilidation.HasValue && input.PhoneNumberNeedsVilidation.Value)
                                 {
-                                    html+= " <div class=\"input-group\"><div class=\"col-sm-10 top-left\"><input class=\"btn btn-info\" type=\"button\" id=\"getcode\" value=\"点击获取手机验证码\" /><span id = \"telephonenameTip\" ></span></div></div>";
+                                    html += " <div class=\"input-group\"><div class=\"col-sm-10 top-left\"><input class=\"btn btn-info\" type=\"button\" id=\"getcode\" value=\"点击获取手机验证码\" /><span id = \"telephonenameTip\" ></span></div></div>";
                                     htmlType = "text";
                                     htmlClass = "form-control";
                                     html += $"<div class=\"form-group\"><label for=\"SmsCode\" class=\"col-sm-2 control-label\">验证码</label>";
@@ -252,7 +252,7 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost]
-        public JsonResult SignUpCommit(QrCodeActivityRegister input) 
+        public JsonResult SignUpCommit(QrCodeActivityRegister input)
         {
             try
             {
@@ -263,7 +263,16 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
                 AbpResult<QrCodeActivityRegister> abpResult = JsonConvert.DeserializeObject<AbpResult<QrCodeActivityRegister>>(responseJson);
                 if (abpResult != null && abpResult.result != null && abpResult.result.Id > 0)
                 {
-                    return Json(new { success = true }, JsonRequestBehavior.AllowGet);
+                    /* if (input.JumpToCustomService.HasValue && input.JumpToCustomService.Value && !string.IsNullOrWhiteSpace(input.CustomServiceUrl))
+                     {
+                         return RedirectPermanent(input.CustomServiceUrl);
+                     }*/
+                    return Json(new
+                    {
+                        success = true,
+                        input.JumpToCustomService,
+                        input.CustomServiceUrl
+                    }, JsonRequestBehavior.AllowGet);
                 }
                 else if (!abpResult.success)
                 {
@@ -289,24 +298,24 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
             try
             {
                 //获取信息
-                var requestJson = JsonConvert.SerializeObject(new {mobile});
+                var requestJson = JsonConvert.SerializeObject(new { mobile });
                 var responseJson = HttpClientHelper.Post(SendMsgUrl, requestJson);
                 //转换为json对象
                 AbpResult<SendSmsResultDto> abpResult = JsonConvert.DeserializeObject<AbpResult<SendSmsResultDto>>(responseJson);
-                if (abpResult!=null&& abpResult.result!=null&&abpResult.result.Success)
+                if (abpResult != null && abpResult.result != null && abpResult.result.Success)
                 {
                     return Json(new { success = true }, JsonRequestBehavior.AllowGet);
                 }
                 else
                 {
-                    return Json(new { success = false, msg = "请稍后再试！"}, JsonRequestBehavior.AllowGet);
+                    return Json(new { success = false, msg = "请稍后再试！" }, JsonRequestBehavior.AllowGet);
                 }
             }
             catch (Exception ex)
             {
-                return Json(new { success = false,msg=ex.Message }, JsonRequestBehavior.AllowGet);
+                return Json(new { success = false, msg = ex.Message }, JsonRequestBehavior.AllowGet);
             }
-            
+
         }
         /// <summary>
         /// 
@@ -317,7 +326,7 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
         /// <param name="ownerUserId"></param>
         /// <param name="publicityId"></param>
         /// <returns></returns>
-        private ScanQrCodeResult ScanCode(string openId,string activityId, string userId, string ownerUserId, string publicityId)
+        private ScanQrCodeResult ScanCode(string openId, string activityId, string userId, string ownerUserId, string publicityId)
         {
             ScanQrCodeResult result = new ScanQrCodeResult();
             try
@@ -343,7 +352,7 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
                     result.Message = $"<h1>服务器出现错误，请稍后在扫码！{responseJson}</h1>";
 
                 }
-                else if (scanCodeResult.result != null && scanCodeResult.result.InnerCode == null&&scanCodeResult.result.QrCodeActivity==null)
+                else if (scanCodeResult.result != null && scanCodeResult.result.InnerCode == null && scanCodeResult.result.QrCodeActivity == null)
                 {
                     result.IsSucess = false;
                     result.Message = $"<h1>{scanCodeResult.result.Message}</h1>";
@@ -372,7 +381,7 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
             {
                 //获取信息
                 var requestJson = JsonConvert.SerializeObject(new { code, state });
-                var responseJson=HttpClientHelper.Post(GetWeChatUserInfoUrl, requestJson);
+                var responseJson = HttpClientHelper.Post(GetWeChatUserInfoUrl, requestJson);
                 //转换为json对象
                 AbpResult<GetWeChatUserInfoResult> userInfoResponse = JsonConvert.DeserializeObject<AbpResult<GetWeChatUserInfoResult>>(responseJson);
                 if (userInfoResponse == null || userInfoResponse.result == null)
@@ -388,7 +397,7 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
             {
                 return null;
             }
-            
+
         }
         /// <summary>
         /// 获取年级
@@ -397,7 +406,7 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
         {
             try
             {
-                if (GradeDtos.Count==0)
+                if (GradeDtos.Count == 0)
                 {
                     //获取信息
                     //var requestJson = JsonConvert.SerializeObject(new { SkipCount=0, MaxResultCount=int.MaxValue });
