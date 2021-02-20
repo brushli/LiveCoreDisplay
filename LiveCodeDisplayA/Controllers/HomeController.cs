@@ -174,14 +174,14 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
                     html += $"<img id=\"topImg\" class=\"img-responsive\" src=\"{input.RegisterImageUrl}\"></img>";
                 }
                 var itemClass = input.RegiterItemClass.Split(',');
-                string htmlType = "text";
-                string htmlClass = "form-control";
                 foreach (var item in itemClass)
                 {
                     var items = item.Split('|');
                     if (items.Length == 4)
                     {
                         html += $"<div class=\"form-group\"><label for=\"{items[0]}\" class=\"col-sm-2 control-label\">{items[1]}</label>";
+                        string htmlType;
+                        string htmlClass;
                         switch (items[2])
                         {
                             case "文本框":

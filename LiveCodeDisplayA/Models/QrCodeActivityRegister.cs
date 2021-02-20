@@ -8,6 +8,10 @@ namespace BJ.LiveCodeDisplay.Web.Models
     public class QrCodeActivityRegister
     {
         public long Id { set; get; }
+        /// <summary>
+        /// 活动Id
+        /// </summary>
+        public long PublicityId { set; get; }
         public long ActivityId { set; get; }
         /// <summary>
         /// 活码推广人
@@ -21,14 +25,7 @@ namespace BJ.LiveCodeDisplay.Web.Models
         /// 
         /// </summary>
         public string OpenId { set; get; }
-        /// <summary>
-        /// 报名所属注册所属人ID
-        /// </summary>
-        public long RegistrationUserId { set; get; }
-        /// <summary>
-        /// 报名所属注册所属人名称
-        /// </summary>
-        public string RegistrationUserName { set; get; }
+        
         public string Name { set; get; }
         public string Grade { set; get; }
         public string Phone { set; get; }
