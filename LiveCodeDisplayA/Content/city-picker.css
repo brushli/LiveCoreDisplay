@@ -158,3 +158,9 @@
     color: #fff;
     border-radius: 2px;
 }
+
+.img-responsive {
+    display: block;
+    height: 150px;
+    width: 100%;
+}

@@ -141,5 +141,13 @@ namespace BJ.LiveCodeDisplay.Web.Models
         /// 班型,多个使用","号隔开
         /// </summary>
         public string ClassType { set; get; }
+        /// <summary>
+        /// 报名图片地址
+        /// </summary>
+        public string RegisterImageUrl { set; get; }
+        /// <summary>
+        /// 报名图片名称
+        /// </summary>
+        public string RegisterImageName { set; get; }
     }
 }

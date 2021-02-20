@@ -50,6 +50,7 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
             ViewBag.ownerUserId = ownerUserId;
             ViewBag.publicityId = publicityId;
             var openId = Request.Cookies[OpenIdCookiesKey];
+            //var openId =new HttpCookie("aa","cccc");
             if (openId != null)
             {
                 ViewBag.openid = openId.Value;
@@ -114,7 +115,7 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
             }
             else
             {
-                return Content(scanCodeResult.Message);
+                return Content($"<h1>{scanCodeResult.Message}</h1>");
             }
         }
 
@@ -167,7 +168,11 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
                 html += $"<input type=\"hidden\"  id=\"openid\" name=\"openid\" value=\"{ViewBag.openid}\" />";
                 html += $"<input type=\"hidden\"  id=\"RegistrationUserId\" name=\"RegistrationUserId\" value=\"{input.RegistrationUserId}\" />";
                 html += $"<input type=\"hidden\"  id=\"RegistrationUserName\" name=\"RegistrationUserName\" value=\"{input.RegistrationUserName}\" />";
-                html += $"<div id=\"legend\" class=\"text-center\"><legend class=\"\">{input.Name}</legend></div>";
+                //html += $"<div id=\"legend\" class=\"text-center\"><legend class=\"\">{input.Name}</legend></div>";
+                if (!string.IsNullOrWhiteSpace(input.RegisterImageUrl))
+                {
+                    html += $"<img id=\"topImg\" class=\"img-responsive\" src=\"{input.RegisterImageUrl}\"></img>";
+                }
                 var itemClass = input.RegiterItemClass.Split(',');
                 string htmlType = "text";
                 string htmlClass = "form-control";
@@ -230,7 +235,7 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
                                     html += " <div class=\"input-group\"><div class=\"col-sm-10 top-left\"><input class=\"btn btn-info\" type=\"button\" id=\"getcode\" value=\"点击获取手机验证码\" /><span id = \"telephonenameTip\" ></span></div></div>";
                                     htmlType = "text";
                                     htmlClass = "form-control";
-                                    html += $"<div class=\"form-group\"><label for=\"SmsCode\" class=\"col-sm-2 control-label\">验证码</label>";
+                                    html += $"<div class=\"form-group\"><label for=\"SmsCode\" class=\"col-sm-2 control-label\" style=\"margin-top:10px\">验证码</label>";
                                     html += $"<div class=\"col-sm-10\"><input type=\"{htmlType}\" class=\"{htmlClass}\" id=\"SmsCode\" name=\"SmsCode\"></div>";
                                 }
                                 break;
@@ -242,7 +247,7 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
                         html += "</div>";
                     }
                 }
-                html += "<div class=\"form-group text-center\"><button type=\"button\" id=\"submitBtn\" name=\"submit\" class=\"btn btn-primary\"> <span class=\"glyphicon glyphicon-floppy-disk\" aria-hidden=\"true\"></span>报名</button><div></fieldset></form>";
+                html += "<div class=\"form-group text-center\"><button type=\"button\" id=\"submitBtn\" name=\"submit\" class=\"btn btn-primary btn-lg\"> <span class=\"glyphicon glyphicon-floppy-disk\" aria-hidden=\"true\"></span>报名</button><div></fieldset></form>";
                 ViewBag.ContentHtml = html;
             }
             return View("SignUp", input);
