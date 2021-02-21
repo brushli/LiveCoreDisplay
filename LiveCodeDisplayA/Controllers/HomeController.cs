@@ -49,8 +49,8 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
             ViewBag.userId = userId;
             ViewBag.ownerUserId = ownerUserId;
             ViewBag.publicityId = publicityId;
-            var openId = Request.Cookies[OpenIdCookiesKey];
-            //var openId =new HttpCookie("aa","cccc");
+            //var openId = Request.Cookies[OpenIdCookiesKey];
+            var openId =new HttpCookie("aa","cccc");
             if (openId != null)
             {
                 ViewBag.openid = openId.Value;
