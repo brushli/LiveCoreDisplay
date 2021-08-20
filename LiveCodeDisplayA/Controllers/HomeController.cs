@@ -16,18 +16,9 @@ using System.Web.Mvc;
 namespace BJ.LiveCodeDisplay.Web.Controllers
 {
     public class HomeController : Controller
-    {
-        private readonly static string BaseUrl = ConfigurationManager.AppSettings["BaseUrl"];
-        private readonly string GetWeChatUserInfoUrl = BaseUrl + "api/WeChat/GetWeChatUserInfo";
-        private readonly string ScanCodeUrl = BaseUrl + "api/services/app/QrCodeActivitys/ScanCode";
-        private readonly string LongPressUrl = BaseUrl + "api/services/app/QrCodeActivityInnerCode/LongPress";
-        private readonly string CommitSignUpUrl = BaseUrl + "api/services/app/QrCodeActivityRegister/Create";
-        private readonly string SendMsgUrl = BaseUrl + "api/services/app/SmsMessageService/SendSignUpCode";
-        private readonly string GetGradeUrl = BaseUrl + "api/services/app/Grade/GetAll";
-        private readonly string OpenIdCookiesKey = "jzlm_openid";
-        private readonly string WeChatRedirectUrl = ConfigurationManager.AppSettings["WeChatRedirectUrl"];
+    {           
+        private readonly string OpenIdCookiesKey = "jzlm_openid";       
         private static List<GradeDto> GradeDtos = new List<GradeDto>();
-        private readonly string WeChatAppID = ConfigurationManager.AppSettings["WeChatAppID"];
         /// <summary>
         /// 扫码
         /// </summary>
@@ -43,6 +34,10 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
             if (string.IsNullOrEmpty(activityId) || string.IsNullOrWhiteSpace(activityId))
             {
                 return Content("<h1>无效的扫码！</h1>");
+            }
+            if (string.IsNullOrEmpty(WebConfig.WeChatAppID) )
+            {
+                return Content("<h1>系统参数错误，无法扫码！</h1>");
             }
             //报名活码测试：https://localhost:44392/?activityId=29fdaf68-bbf9-4eb2-8d8f-42dc8b418da2&ownerUserId=2&userId=2
             ViewBag.activityId = activityId;
@@ -75,19 +70,19 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
                 }
                 catch (Exception)
                 {
-                    var redirect_uri = WeChatRedirectUrl + "?activityId=" + activityId + "&userId=" + userId + "&ownerUserId=" + ownerUserId + "&publicityId=" + publicityId;
+                    var redirect_uri = WebConfig.WeChatRedirectUrl + "?activityId=" + activityId + "&userId=" + userId + "&ownerUserId=" + ownerUserId + "&publicityId=" + publicityId;
                     redirect_uri = HttpUtility.UrlEncode(redirect_uri);
                     //引导页面，用ss来获取openid
-                    var wecharUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + WeChatAppID + "&redirect_uri=" + redirect_uri + "&response_type=code&scope=snsapi_base&state=scancode#wechat_redirect";
+                    var wecharUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + WebConfig.WeChatAppID + "&redirect_uri=" + redirect_uri + "&response_type=code&scope=snsapi_base&state=scancode#wechat_redirect";
                     return Redirect(wecharUrl);
                 }
             }
             else
             {
-                var redirect_uri = WeChatRedirectUrl + "?activityId=" + activityId + "&userId=" + userId + "&ownerUserId=" + ownerUserId + "&publicityId=" + publicityId;
+                var redirect_uri = WebConfig.WeChatRedirectUrl + "?activityId=" + activityId + "&userId=" + userId + "&ownerUserId=" + ownerUserId + "&publicityId=" + publicityId;
                 redirect_uri = HttpUtility.UrlEncode(redirect_uri);
                 //引导页面，用ss来获取openid
-                var wecharUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + WeChatAppID + "&redirect_uri=" + redirect_uri + "&response_type=code&scope=snsapi_base&state=scancode#wechat_redirect";
+                var wecharUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + WebConfig.WeChatAppID + "&redirect_uri=" + redirect_uri + "&response_type=code&scope=snsapi_base&state=scancode#wechat_redirect";
                 return Redirect(wecharUrl);
             }
         }
@@ -136,7 +131,7 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
             HttpContent httpContent = new StringContent(requestJson);
             httpContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             var httpClient = new HttpClient();
-            var responseJson = httpClient.PostAsync(LongPressUrl, httpContent).Result.Content.ReadAsStringAsync().Result;
+            var responseJson = httpClient.PostAsync(WebConfig.LongPressUrl, httpContent).Result.Content.ReadAsStringAsync().Result;
             //转换为json对象
             //转换为json对象
             AbpResult<ResultDto> longPressResponse = JsonConvert.DeserializeObject<AbpResult<ResultDto>>(responseJson);
@@ -263,7 +258,7 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
             {
                 //获取信息
                 var requestJson = JsonConvert.SerializeObject(input);
-                var responseJson = HttpClientHelper.Post(CommitSignUpUrl, requestJson);
+                var responseJson = HttpClientHelper.Post(WebConfig.CommitSignUpUrl, requestJson);
                 //转换为json对象
                 AbpResult<QrCodeActivityRegister> abpResult = JsonConvert.DeserializeObject<AbpResult<QrCodeActivityRegister>>(responseJson);
                 if (abpResult != null && abpResult.result != null && abpResult.result.Id > 0)
@@ -304,7 +299,7 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
             {
                 //获取信息
                 var requestJson = JsonConvert.SerializeObject(new { mobile });
-                var responseJson = HttpClientHelper.Post(SendMsgUrl, requestJson);
+                var responseJson = HttpClientHelper.Post(WebConfig.SendMsgUrl, requestJson);
                 //转换为json对象
                 AbpResult<SendSmsResultDto> abpResult = JsonConvert.DeserializeObject<AbpResult<SendSmsResultDto>>(responseJson);
                 if (abpResult != null && abpResult.result != null && abpResult.result.Success)
@@ -345,7 +340,7 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
                     ownerUserId,
                     publicityId,
                 });
-                var responseJson = HttpClientHelper.Post(ScanCodeUrl, requestJson);
+                var responseJson = HttpClientHelper.Post(WebConfig.ScanCodeUrl, requestJson);
                 AbpResult<ScanQrCodeResult> scanCodeResult = JsonConvert.DeserializeObject<AbpResult<ScanQrCodeResult>>(responseJson);
                 if (scanCodeResult != null && scanCodeResult.result != null)
                 {
@@ -386,7 +381,7 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
             {
                 //获取信息
                 var requestJson = JsonConvert.SerializeObject(new { code, state });
-                var responseJson = HttpClientHelper.Post(GetWeChatUserInfoUrl, requestJson);
+                var responseJson = HttpClientHelper.Post(WebConfig.GetWeChatUserInfoUrl, requestJson);
                 //转换为json对象
                 AbpResult<GetWeChatUserInfoResult> userInfoResponse = JsonConvert.DeserializeObject<AbpResult<GetWeChatUserInfoResult>>(responseJson);
                 if (userInfoResponse == null || userInfoResponse.result == null)
@@ -415,7 +410,7 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
                 {
                     //获取信息
                     //var requestJson = JsonConvert.SerializeObject(new { SkipCount=0, MaxResultCount=int.MaxValue });
-                    var responseJson = HttpClientHelper.Get(GetGradeUrl, $"SkipCount=0&MaxResultCount={int.MaxValue}");
+                    var responseJson = HttpClientHelper.Get(WebConfig.GetGradeUrl, $"SkipCount=0&MaxResultCount={int.MaxValue}");
                     //转换为json对象
                     AbpResult<PagedResultDto<GradeDto>> gradeResponse = JsonConvert.DeserializeObject<AbpResult<PagedResultDto<GradeDto>>>(responseJson);
                     GradeDtos = gradeResponse.result.Items.ToList();

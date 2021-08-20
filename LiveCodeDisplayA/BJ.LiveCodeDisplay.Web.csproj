@@ -127,6 +127,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\AbpResult.cs" />
+    <Compile Include="Models\GetWeChartParametersDto.cs" />
     <Compile Include="Models\GetWeChatUserInfoResult.cs" />
     <Compile Include="Models\GradeDto.cs" />
     <Compile Include="Models\ListResultDto.cs" />
@@ -137,6 +138,7 @@
     <Compile Include="Models\ResultDto.cs" />
     <Compile Include="Models\ScanQrCodeResult.cs" />
     <Compile Include="Models\SendSmsResultDto.cs" />
+    <Compile Include="Models\WebConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
