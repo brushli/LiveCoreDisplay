@@ -24,7 +24,6 @@ namespace BJ.LiveCodeDisplay.Web
         }
         private void LoadWeChartPara()
         {
-
             //获取信息
             var responseJson = HttpClientHelper.Get(WebConfig.GetWeChartParametersUrl, "");
             //转换为json对象
@@ -33,7 +32,7 @@ namespace BJ.LiveCodeDisplay.Web
             if (chartSetResponse.success&& chartSetResponse.result!=null)
             {
                 WebConfig.WeChatAppID = chartSetResponse.result.WeChartAppID;
-                WebConfig.WeChatRedirectUrl = chartSetResponse.result.WeChartRedirectUrl;
+                WebConfig.WeChatRedirectUrl = chartSetResponse.result.ScanCodeRedirectUrl;
             }
         }
     }

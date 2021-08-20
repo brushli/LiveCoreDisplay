@@ -9,6 +9,6 @@ namespace BJ.LiveCodeDisplay.Web.Models
     {
         public string WeChartAppID { set; get; }
         public string WeChartSecret { set; get; }
-        public string WeChartRedirectUrl { set; get; }
+        public string ScanCodeRedirectUrl { set; get; }
     }
 }
