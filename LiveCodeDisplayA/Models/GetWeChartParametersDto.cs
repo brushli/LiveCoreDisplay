@@ -7,8 +7,10 @@ namespace BJ.LiveCodeDisplay.Web.Models
 {
     public class GetWeChartParametersDto
     {
-        public string WeChartAppID { set; get; }
-        public string WeChartSecret { set; get; }
+        public string WeChatAppID { set; get; }
+        public string WeChatSecret { set; get; }
         public string ScanCodeRedirectUrl { set; get; }
+        public string ICCCPOHomeIndexUrl { set; get; }
+        public string WeChatRedirectUrl { set; get; }
     }
 }

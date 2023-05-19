@@ -16,7 +16,28 @@ namespace BJ.LiveCodeDisplay.Web.Models
         public readonly static string SendMsgUrl = BaseUrl + "api/services/app/SmsMessageService/SendSignUpCode";
         public readonly static string GetGradeUrl = BaseUrl + "api/services/app/Grade/GetAll";
         public readonly static string GetWeChartParametersUrl = BaseUrl + "api/services/app/SystemParameters/GetWeChartParameters";
-        public static string WeChatRedirectUrl = string.Empty;
-        public static string WeChatAppID = string.Empty;
+        public static string 链接处理地址 = BaseUrl + "api/TokenAuth/Link";
+
+        public static string WeChatAppID { set; get; }
+        public static string WeChatSecret { set; get; }
+        public static string ScanCodeRedirectUrl { set; get; }
+        /// <summary>
+        /// 家长联盟首页地址
+        /// </summary>
+        public static string ICCCPOHomeIndexUrl { set; get; }
+        /// <summary>
+        /// 家长联盟地址
+        /// </summary>
+        public static string WeChatRedirectUrl { set; get; }
+        /// <summary>
+        /// 家长联盟首页完整地址
+        /// </summary>
+        public static string ICCCPOHomeUrl
+        {
+            get
+            {
+                return WeChatRedirectUrl + ICCCPOHomeIndexUrl;
+            }
+        }
     }
 }

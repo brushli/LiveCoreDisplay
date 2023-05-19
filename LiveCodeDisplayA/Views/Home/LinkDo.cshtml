@@ -1,0 +1,53 @@
+﻿
+@{
+    ViewBag.Title = "家长联盟";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="chn">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家长联盟</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    @*<div id="contenDiv"> @Html.Raw(ViewBag.ContentHtml)</div>*@
+    <div class="jumbotron"  style="background-color:white">
+        <div class="container" style="background-color:white">
+            <p id="contentA">@Html.Raw(ViewBag.ContentHtml)</p>
+            <p><a class="btn btn-primary btn-lg" href="javascript:void(0);" onclick="copyContent()" role="button">复制内容</a></p>
+        </div>
+     
+    </div>
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        function copyContent() {
+            var contentP = document.getElementById("contentA");
+          
+            if (navigator.clipboard && window.isSecureContext) {
+                // navigator clipboard 向剪贴板写文本
+                navigator.clipboard.writeText(contentP.innerText).then(() => {
+                    alert("复制成功！");
+                });
+            } else {
+                const selBox = document.createElement('textarea');
+                selBox.style.position = 'fixed';
+                selBox.style.left = '0';
+                selBox.style.top = '0';
+                selBox.style.opacity = '0';
+                selBox.value = contentP.innerText;
+                document.body.appendChild(selBox);
+                selBox.focus();
+                selBox.select();
+                document.execCommand('copy');
+                document.body.removeChild(selBox);
+                alert("复制成功！");
+            }
+        }
+    </script>
+</body>
+</html>
+

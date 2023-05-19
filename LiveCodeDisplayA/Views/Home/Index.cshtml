@@ -11,7 +11,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     @if (Model != null && Model.IsSucess && Model.InnerCode != null)
     {
-        <title> @Model.InnerCode.Name</title>
+    <title> @Model.InnerCode.Name+@Model.IsScanCustomServiceQrCode.ToString()</title>
     }
     else
     {
@@ -43,6 +43,7 @@
     var userId = '@ViewBag.userId';
     var openid = '@ViewBag.openid';
     var innerCodeId = '@ViewBag.innerCodeId';
+    var isScanCustomServiceQrCode = '@Model.IsScanCustomServiceQrCode';
     $(function () {
         $("#qrcodeImg").on({
             touchstart: function (e) {
@@ -59,13 +60,13 @@
                 return false;
             }
         })
-    });   
+    });
     function longPress() {
-        @if (Model.IsScanCustomServiceQrCode) 
+        @*@if (Model.IsScanCustomServiceQrCode)
         {
             return;
-        }
-        timeOutEvent = 0;        
+        }*@      
+        timeOutEvent = 0;
         $.ajax({
             type: "POST",
             url: "/Home/LongPress",
@@ -75,7 +76,8 @@
                 activityId: activityId,
                 ownerUserId: ownerUserId,
                 innerCodeId: innerCodeId,
-                publicityId: publicityId
+                publicityId: publicityId,
+                isScanCustomServiceQrCode: isScanCustomServiceQrCode
             },//参数，无参数填空
             success: function (msg) {//请求成功后执行的方法
 

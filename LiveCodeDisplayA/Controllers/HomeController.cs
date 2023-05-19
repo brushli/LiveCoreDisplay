@@ -55,7 +55,7 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
             {
                 try
                 {
-                    var weChatUserInfo = GetWeChatUserInfo(code, state);
+                    var weChatUserInfo = GetWeChatUserInfo<GetWeChatUserInfoResult>(code, state);
                     if (weChatUserInfo == null)
                     {
                         return Content("<h1>未能获取您的信息，请重新扫码</h1>！");
@@ -70,7 +70,7 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
                 }
                 catch (Exception)
                 {
-                    var redirect_uri = WebConfig.WeChatRedirectUrl + "?activityId=" + activityId + "&userId=" + userId + "&ownerUserId=" + ownerUserId + "&publicityId=" + publicityId;
+                    var redirect_uri = WebConfig.ScanCodeRedirectUrl + "?activityId=" + activityId + "&userId=" + userId + "&ownerUserId=" + ownerUserId + "&publicityId=" + publicityId;
                     redirect_uri = HttpUtility.UrlEncode(redirect_uri);
                     //引导页面，用ss来获取openid
                     var wecharUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + WebConfig.WeChatAppID + "&redirect_uri=" + redirect_uri + "&response_type=code&scope=snsapi_base&state=scancode#wechat_redirect";
@@ -79,7 +79,7 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
             }
             else
             {
-                var redirect_uri = WebConfig.WeChatRedirectUrl + "?activityId=" + activityId + "&userId=" + userId + "&ownerUserId=" + ownerUserId + "&publicityId=" + publicityId;
+                var redirect_uri = WebConfig.ScanCodeRedirectUrl + "?activityId=" + activityId + "&userId=" + userId + "&ownerUserId=" + ownerUserId + "&publicityId=" + publicityId;
                 redirect_uri = HttpUtility.UrlEncode(redirect_uri);
                 //引导页面，用ss来获取openid
                 var wecharUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + WebConfig.WeChatAppID + "&redirect_uri=" + redirect_uri + "&response_type=code&scope=snsapi_base&state=scancode#wechat_redirect";
@@ -106,6 +106,7 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
             else if (scanCodeResult.IsSucess && scanCodeResult.InnerCode != null)
             {
                 ViewBag.innerCodeId = scanCodeResult.InnerCode.Id;
+                ViewBag.isScanCustomServiceQrCode = scanCodeResult.IsScanCustomServiceQrCode;
                 return View("Index", scanCodeResult);
             }
             else
@@ -124,10 +125,10 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
         /// <param name="openId"></param>
         /// <param name="innerCodeId"></param>
         /// <returns></returns>
-        public ActionResult LongPress(string activityId, string userId, string ownerUserId, string publicityId, string openId, string innerCodeId)
+        public ActionResult LongPress(string activityId, string userId, string ownerUserId, string publicityId, string openId, string innerCodeId,bool isScanCustomServiceQrCode)
         {
             //获取信息
-            var requestJson = JsonConvert.SerializeObject(new { activityId, userId, ownerUserId, publicityId, openId, innerCodeId });
+            var requestJson = JsonConvert.SerializeObject(new { activityId, userId, ownerUserId, publicityId, openId, innerCodeId, isScanCustomServiceQrCode });
             HttpContent httpContent = new StringContent(requestJson);
             httpContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             var httpClient = new HttpClient();
@@ -375,7 +376,7 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
         /// <param name="code"></param>
         /// <param name="state"></param>
         /// <returns></returns>
-        private GetWeChatUserInfoResult GetWeChatUserInfo(string code, string state)
+        private  T GetWeChatUserInfo<T>(string code, string state)
         {
             try
             {
@@ -383,10 +384,10 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
                 var requestJson = JsonConvert.SerializeObject(new { code, state });
                 var responseJson = HttpClientHelper.Post(WebConfig.GetWeChatUserInfoUrl, requestJson);
                 //转换为json对象
-                AbpResult<GetWeChatUserInfoResult> userInfoResponse = JsonConvert.DeserializeObject<AbpResult<GetWeChatUserInfoResult>>(responseJson);
+                AbpResult<T> userInfoResponse = JsonConvert.DeserializeObject<AbpResult<T>>(responseJson);
                 if (userInfoResponse == null || userInfoResponse.result == null)
                 {
-                    return null;
+                    return Activator.CreateInstance<T>();
                 }
                 else
                 {
@@ -395,7 +396,7 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
             }
             catch (Exception)
             {
-                return null;
+                return Activator.CreateInstance<T>();
             }
 
         }
@@ -420,6 +421,86 @@ namespace BJ.LiveCodeDisplay.Web.Controllers
             {
                 return;
             }
+        }
+        public ActionResult Link()
+        {
+            var input = RouteData.Values["id"];
+            if (input == null)
+            {
+                return Content("无效链接！");
+            }
+            var redirect_uri = WebConfig.ScanCodeRedirectUrl + "/Home/LinkDo?linkKey=" + input.ToString();
+            redirect_uri = HttpUtility.UrlEncode(redirect_uri);
+            var wecharUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + WebConfig.WeChatAppID + "&redirect_uri=" + redirect_uri + "&response_type=code&scope=snsapi_base&state=scancode#wechat_redirect";
+            //引导页面，用来获取openid
+            //var wecharUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + WebConfig.WeChatAppID + "&redirect_uri=" + redirect_uri + "&response_type=code&scope=snsapi_userinfo&state=linkClick#wechat_redirect";
+            return Redirect(wecharUrl);
+        }
+        /// <summary>
+        /// 链接点击处理
+        /// </summary>
+        /// <param name="code"></param>
+        /// <param name="state"></param>
+        /// <param name="linkKey"></param>
+        /// <returns></returns>
+        public ActionResult LinkDo(string code, string state, string linkKey)
+        {
+            string requestJson = "";
+            try
+            {
+                var weChatUserInfo = GetWeChatUserInfo<LinkClickDto>(code, state);
+                if (weChatUserInfo == null|| string.IsNullOrEmpty(weChatUserInfo.OpenId))
+                {
+                    return Content("<h1>未能获取您的信息，请授权！</h1>");
+                }
+                weChatUserInfo.AuthProvider = "WeChat";
+                weChatUserInfo.PrimaryKey = linkKey;
+                //获取信息
+                requestJson = JsonConvert.SerializeObject(weChatUserInfo);
+                var responseJson = HttpClientHelper.Post(WebConfig.链接处理地址, requestJson);
+                //转换为json对象
+                AbpResult<LinkClickResult> userInfoResponse = JsonConvert.DeserializeObject<AbpResult<LinkClickResult>>(responseJson);
+                if (userInfoResponse == null || userInfoResponse.result == null)
+                {
+                    return Content("<h1>请稍后再试A！</h1>");
+                }
+                else
+                {
+                    if (userInfoResponse.result.IsSucess)
+                    {
+                        if (userInfoResponse.result.IsFirst&& string.IsNullOrEmpty(weChatUserInfo.NickName))
+                        {
+                            var redirect_uri = WebConfig.ScanCodeRedirectUrl + "/Home/LinkDo?linkKey=" + linkKey;
+                            var wecharUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + WebConfig.WeChatAppID + "&redirect_uri=" + redirect_uri + "&response_type=code&scope=snsapi_userinfo&state=linkClick#wechat_redirect";
+                            return Redirect(wecharUrl);
+                        }
+                        else
+                        {
+                            if (userInfoResponse.result.LinkType == 0)
+                            {
+                                ViewBag.ContentHtml = userInfoResponse.result.LinkContent;
+                                return View();
+                            }
+                            else if(userInfoResponse.result.LinkType == 1)
+                            {
+                                return Redirect(WebConfig.ICCCPOHomeUrl+"?token="+ userInfoResponse.result.AccessToken);
+                            }
+                            else
+                                return Content($"<h1>解析问题,请稍后再试！</h1>");
+                        }
+                    }
+                    else
+                    {
+                        return Content($"<h1>{userInfoResponse.result.Message}</h1>");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return Content("<h1>请稍后再试B！</h1>"+ex.Message+ex.StackTrace+"\r\n"+ requestJson);
+            }
+           
+            
         }
     }
 }

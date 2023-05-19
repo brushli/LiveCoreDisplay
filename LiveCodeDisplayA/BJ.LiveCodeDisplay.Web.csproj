@@ -130,6 +130,8 @@
     <Compile Include="Models\GetWeChartParametersDto.cs" />
     <Compile Include="Models\GetWeChatUserInfoResult.cs" />
     <Compile Include="Models\GradeDto.cs" />
+    <Compile Include="Models\LinkClickDto.cs" />
+    <Compile Include="Models\LinkClickResult.cs" />
     <Compile Include="Models\ListResultDto.cs" />
     <Compile Include="Models\PagedResultDto.cs" />
     <Compile Include="Models\QrCodeActivityInnerQrCode.cs" />
@@ -181,6 +183,7 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Home\TestIndex.cshtml" />
     <Content Include="Views\Home\SignUp.cshtml" />
+    <Content Include="Views\Home\LinkDo.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

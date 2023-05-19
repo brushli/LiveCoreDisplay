@@ -28,11 +28,13 @@ namespace BJ.LiveCodeDisplay.Web
             var responseJson = HttpClientHelper.Get(WebConfig.GetWeChartParametersUrl, "");
             //转换为json对象
             AbpResult<GetWeChartParametersDto> chartSetResponse = JsonConvert.DeserializeObject<AbpResult<GetWeChartParametersDto>>(responseJson);
-            //WebConfig.WeChatAppID= charSetResponse.success
-            if (chartSetResponse.success&& chartSetResponse.result!=null)
+            if (chartSetResponse.success && chartSetResponse.result != null)
             {
-                WebConfig.WeChatAppID = chartSetResponse.result.WeChartAppID;
-                WebConfig.WeChatRedirectUrl = chartSetResponse.result.ScanCodeRedirectUrl;
+                WebConfig.WeChatAppID = chartSetResponse.result.WeChatAppID;
+                WebConfig.ICCCPOHomeIndexUrl = chartSetResponse.result.ICCCPOHomeIndexUrl;
+                WebConfig.ScanCodeRedirectUrl = chartSetResponse.result.ScanCodeRedirectUrl;
+                WebConfig.WeChatSecret = chartSetResponse.result.WeChatSecret;
+                WebConfig.WeChatRedirectUrl = chartSetResponse.result.WeChatRedirectUrl;
             }
         }
     }
